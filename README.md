@@ -1,51 +1,68 @@
-<p align="center">
-  <img src="img/logo_2.png" alt="Logo UTFPR - Universidade Tecnológica Federal do Paraná" width="340">
-</p>
+<div align="center">
+  <img src="img/logo_2.png" alt="Logo UTFPR - Universidade Tecnológica Federal do Paraná" width="240">
+  <br><br>
+  <strong>Universidade Tecnológica Federal do Paraná (UTFPR)</strong><br>
+  <sub>Disciplina: <strong>OPT101 — Tópicos Especiais Em Interfaces Computacionais</strong></sub>
 
-<h3 align="center">Universidade Tecnológica Federal do Paraná (UTFPR)</h3>
-<p align="center">
-  <strong>Disciplina:</strong> OPT101 — Tópicos Especiais Em Interfaces Computacionais
-</p>
+  <h1>Rede IoT Sem Fios (2,4 GHz) com Controle Autônomo M2M, CSMA/CA, ARQ e Supervisão Web</h1>
 
-<h1 align="center">Rede IoT Sem Fios (2,4 GHz) com Controle Autônomo M2M, CSMA/CA, ARQ e Supervisão Web Multi-Porta</h1>
+  <p>
+    <img src="https://img.shields.io/badge/Hardware-Arduino_Nano_%2B_nRF24L01%2B-00979D?style=flat-square&logo=arduino&logoColor=white" alt="Arduino Nano + nRF24L01+">
+    <img src="https://img.shields.io/badge/Frequência-2%2C4_GHz_(250_kbps)-2563EB?style=flat-square" alt="2.4 GHz">
+    <img src="https://img.shields.io/badge/Protocolo-CSMA%2FCA_%2B_ARQ-16A34A?style=flat-square" alt="CSMA/CA + ARQ">
+    <img src="https://img.shields.io/badge/Backend-Python_Multi--Porta-3776AB?style=flat-square&logo=python&logoColor=white" alt="Python">
+  </p>
 
----
-
-## Sumário
-
-1. [Visão Geral do Projeto](#1-visão-geral-do-projeto)
-2. [Arquitetura da Rede e Papéis dos Nós (`MEU_ID`)](#2-arquitetura-da-rede-e-papéis-dos-nós-meu_id)
-3. [Hardware, Pinagem SPI e Estabilidade Elétrica](#3-hardware-pinagem-spi-e-estabilidade-elétrica)
-4. [Anatomia do Quadro e Endereçamento (`struct PacoteIoT`)](#4-anatomia-do-quadro-e-endereçamento-struct-pacoteiot)
-5. [Protocolos de Acesso ao Meio e Confiabilidade (`CSMA/CA` + `ARQ`)](#5-protocolos-de-acesso-ao-meio-e-confiabilidade-csmaca--arq)
-6. [Gestão de Espectro, Interferência Wi-Fi e *Auto-Scan*](#6-gestão-de-espectro-interferência-wi-fi-e-auto-scan)
-7. [Diagramas Temporais e Máquinas de Estado](#7-diagramas-temporais-e-máquinas-de-estado)
-8. [Guia de Operação da Interface Web (`script.py`)](#8-guia-de-operação-da-interface-web-scriptpy)
+  <p>
+    <a href="#1-visão-geral-do-projeto">Visão Geral</a> •
+    <a href="#2-arquitetura-da-rede-e-papéis-dos-nós">Arquitetura</a> •
+    <a href="#3-hardware-pinagem-spi-e-estabilidade-elétrica">Hardware & SPI</a> •
+    <a href="#4-anatomia-do-quadro-e-endereçamento">Quadro (15B)</a> •
+    <a href="#5-protocolos-de-acesso-ao-meio-e-confiabilidade">CSMA/CA & ARQ</a> •
+    <a href="#6-gestão-de-espectro-e-interferência-wi-fi">Espectro Wi-Fi</a> •
+    <a href="#7-diagramas-temporais-e-máquinas-de-estado">Temporização</a> •
+    <a href="#8-guia-de-operação-da-interface-web">Operação Web</a>
+  </p>
+</div>
 
 ---
 
 ## 1. Visão Geral do Projeto
 
-Este projeto implementa uma **rede de sensores e atuadores sem fios na faixa ISM de $2{,}4\text{ GHz}$** utilizando microcontroladores **Arduino Nano (ATmega328P)** e transceptores **nRF24L01+**, integrada a um painel de monitoramento e diagnóstico web multi-porta em Python (`script.py`).
+Este projeto implementa uma **rede de sensores e atuadores sem fios na faixa ISM de $2{,}4\text{ GHz}$** utilizando microcontroladores **Arduino Nano (ATmega328P)** e transceptores **nRF24L01+**, integrada a um painel web multi-porta de telemetria e diagnóstico em Python (`script.py`).
 
-A solução combina **controle autônomo máquina-a-máquina (M2M)** — permitindo que o nó sensor acione o nó atuador diretamente sem depender de um computador central — com **supervisão em estrela via Gateway**, possibilitando telemetria em tempo real, comando remoto, ajuste dinâmico de limiares e avaliação experimental de interferência em canais compartilhados com redes Wi-Fi.
+A arquitetura combina **controle autônomo máquina-a-máquina (M2M)** — permitindo que o nó sensor acione o nó atuador diretamente sem depender de um computador central — com **supervisão em estrela via Gateway**, oferecendo comando remoto, ajuste dinâmico de limiares e análise experimental de interferência em canais compartilhados com redes Wi-Fi.
 
-### Principais Características Técnicas
+| Pilar Técnico | Solução Implementada | Benefício no Enlace |
+| :--- | :--- | :--- |
+| **Firmware Unificado (`MEU_ID`)** | Código único parametrizado para **Gateway (`0`)**, **Sensor (`1`)** e **Atuador (`2`)** | Garante alinhamento estrito de estrutura de bytes, temporizações e constantes de rádio |
+| **Acesso ao Meio (`CSMA/CA`)** | Escuta física via registrador `RPD` ($> -64\text{ dBm}$) + *random backoff* | Evita colisões com rajadas de roteadores Wi-Fi e transmissões simultâneas |
+| **Confiabilidade (`ARQ` + `CRC-16`)** | Verificação `CRC-16` em hardware + *Stop-and-Wait* com *backoff* exponencial | Descarta quadros corrompidos e recupera pacotes perdidos em até 5 tentativas |
+| **Resiliência de Rede** | Sincronização por `MSG_BEACON` + varredura autônoma (`Auto-Scan` `0..125`) | Reestabelece a comunicação automaticamente após troca de canal ou queda de energia |
 
-* **Arquitetura Parametrizada por Papel (`MEU_ID`):** O firmware organiza as três placas da rede (`Gateway`, `Sensor` e `Atuador`) sob a mesma estrutura de quadro, temporizações e regras de enlace.
-* **Prevenção de Colisões (`CSMA/CA`):** Escuta física de portadora antes da transmissão via registrador `RPD` (*Received Power Detector*, limiar de $-64\text{ dBm}$) combinada com atraso aleatório (*random backoff*).
-* **Confiabilidade Ponta a Ponta (`ARQ` + `CRC-16`):** Verificação de integridade de 16 bits em hardware e protocolo *Stop-and-Wait* em software com confirmações explícitas (`MSG_ACK`), deduplicação por número de sequência (`seq`) e *backoff* exponencial binário.
-* **Resiliência de Espectro e Hardware:** Sincronização de canal por difusão (*broadcast* de `MSG_BEACON`), varredura autônoma de canais (`Auto-Scan` de `0` a `125`) e auto-recuperação do transceptor (`garantirRadioAtivo()`).
+> [!NOTE]
+> **Documentação Interativa:** O repositório inclui uma página explicativa com simuladores visuais de protocolo e inspetor de bytes em `gateway/static/page.html`, acessível diretamente pelo QR Code exibido no painel de monitoramento.
 
 ---
 
-## 2. Arquitetura da Rede e Papéis dos Nós (`MEU_ID`)
+## 2. Arquitetura da Rede e Papéis dos Nós
 
 <p align="center">
-  <img src="img/Gemini_Generated_Image_k7i29rk7i29rk7i2(1).jpg" alt="Arquitetura Híbrida de Três Nós com Arduino Nano e nRF24L01" width="100%">
+  <img src="img/Gemini_Generated_Image_k7i29rk7i29rk7i2(1).jpg" alt="Arquitetura Híbrida de Três Nós com Arduino Nano e nRF24L01" width="92%">
+  <br>
+  <sub><em>Figura 1 — Topologia híbrida em dois saltos: enlace direto M2M (Nó 1 → Nó 2), telemetria consolidada (Nó 2 → Gateway) e difusão de controle via Beacons.</em></sub>
 </p>
 
-A topologia opera em **dois saltos no sentido ascendente** (telemetria consolidada) e **difusão direta no sentido descendente** (controle e sincronização de parâmetros):
+A topologia opera em **dois saltos no sentido ascendente** (telemetria consolidada até o PC) e **difusão direta no sentido descendente** (sincronização de canal, modo e limiar via *broadcast*):
+
+| Identificador | Papel na Rede | Pino Principal | Responsabilidades Operacionais |
+| :---: | :--- | :---: | :--- |
+| **`MEU_ID 0`** | **Gateway** | `USB` ($115200\text{ bps}$) | Ponte RF $\leftrightarrow$ Serial. Recebe `MSG_TELEMETRIA` do Nó 2, serializa o estado em JSON para o backend Python e difunde `MSG_BEACON` (`destino = 255`). |
+| **`MEU_ID 1`** | **Nó Sensor** | `A0` (ADC 10 bits) | Amostra o sinal analógico (`0..1023`) a cada $1200\text{ ms}$ e transmite o quadro `MSG_DADOS_M2M` diretamente ao Nó 2 (`destino = 2`). |
+| **`MEU_ID 2`** | **Nó Atuador** | `D4` (Saída Digital) | Confirma recepções com `MSG_ACK`, executa a lógica autônoma no pino `D4` (modo `AUTO`) e encaminha telemetria e métricas (`RPD` e `Retries`) ao Gateway. |
+
+<details>
+<summary>📐 <strong>Ver diagrama esquemático do fluxo de mensagens (ASCII)</strong></summary>
 
 ```text
 +-------------------+    1. MSG_DADOS_M2M (A0)     +-------------------+
@@ -68,14 +85,7 @@ A topologia opera em **dois saltos no sentido ascendente** (telemetria consolida
                                                    |  Interface Web    |
                                                    +-------------------+
 ```
-
-### Divisão Funcional por Identificador (`MEU_ID`)
-
-| Identificador | Papel na Rede | Responsabilidades Principais |
-| :--- | :--- | :--- |
-| **`MEU_ID 0`** | **Gateway** | Faz a ponte entre o enlace RF e a porta USB ($115200\text{ bps}$). Recebe `MSG_TELEMETRIA` do Nó 2, serializa o estado em JSON para o backend Python e transmite `MSG_BEACON` (`destino = 255`) para sincronizar canal, modo (`AUTO`/`MANUAL`) e limiar. |
-| **`MEU_ID 1`** | **Nó Sensor** | Realiza a conversão analógico-digital de 10 bits no pino `A0` (`0..1023`) a cada $1200\text{ ms}$ e envia o quadro `MSG_DADOS_M2M` diretamente ao Nó 2 (`destino = 2`). |
-| **`MEU_ID 2`** | **Nó Atuador / Concentrador** | Recebe os dados do Nó 1, confirma com `MSG_ACK`, decide localmente o acionamento do pino `D4` (quando em modo `AUTO`) e encaminha o estado consolidado junto às métricas de enlace (`RPD` e `Retries`) ao Gateway via `MSG_TELEMETRIA`. |
+</details>
 
 ---
 
@@ -83,31 +93,33 @@ A topologia opera em **dois saltos no sentido ascendente** (telemetria consolida
 
 ### Mapa de Conexões (Arduino Nano $\leftrightarrow$ nRF24L01+)
 
-| Pino nRF24L01+ | Pino Arduino Nano | Função no Barramento |
-| :--- | :--- | :--- |
-| `VCC` | `3.3V` | Alimentação do transceptor (recomenda-se capacitor de $10\ \mu\text{F}$ entre `3.3V` e `GND`) |
-| `GND` | `GND` | Referência comum |
-| `CE` | `D7` | *Chip Enable* — seleciona modos RX/TX do transceptor |
-| `CSN` | `D8` | *Chip Select Not* — habilita comunicação no barramento SPI |
-| `SCK` | `D13` | *Serial Clock* do SPI (**não utilizar `D13` como saída de atuador**) |
-| `MOSI` | `D11` | *Master Out Slave In* (dados Arduino $\rightarrow$ nRF24) |
-| `MISO` | `D12` | *Master In Slave Out* (dados nRF24 $\rightarrow$ Arduino) |
-| **Sensor (Nó 1)** | `A0` | Entrada analógica do sensor (`0..1023`) |
-| **Atuador (Nó 2)** | `D4` | Saída digital de acionamento (utilizar resistor de $220\ \Omega$ a $1\text{ k}\Omega$ em série com LED) |
+| Pino nRF24L01+ | Pino Arduino Nano | Função no Barramento | Observação Técnica |
+| :---: | :---: | :--- | :--- |
+| `VCC` | `3.3V` | Alimentação RF | Recomenda-se capacitor de $10\ \mu\text{F}$ entre `3.3V` e `GND` |
+| `GND` | `GND` | Referência comum | Malha de terra compartilhada |
+| `CE` | `D7` | *Chip Enable* | Seleciona os modos de escuta (RX) e transmissão (TX) |
+| `CSN` | `D8` | *Chip Select Not* | Habilita a comunicação no barramento SPI |
+| `SCK` | `D13` | *Serial Clock* (SPI) | **Reservado ao barramento SPI** |
+| `MOSI` | `D11` | *Master Out Slave In* | Envio de comandos e *payload* (Arduino $\rightarrow$ nRF24) |
+| `MISO` | `D12` | *Master In Slave Out* | Leitura de registradores e pacotes (nRF24 $\rightarrow$ Arduino) |
+| **Sensor** | `A0` | Entrada Analógica | Leitura de tensão no **Nó 1** (`0..1023`) |
+| **Atuador** | `D4` | Saída Digital | Acionamento de carga no **Nó 2** |
 
-### Decisões de Engenharia Elétrica
+> [!IMPORTANT]
+> **Integridade Elétrica e SPI:**
+> 1. **Não utilize o pino `D13` (`LED_BUILTIN`) como atuador**, pois ele compartilha o clock (`SCK`) do barramento SPI com o rádio.
+> 2. **Use resistor limitador ($220\ \Omega$ a $1\text{ k}\Omega$)** em série com qualquer LED ligado ao pino `D4` do Nó 2 para evitar queda na linha de $3{,}3\text{ V}$ durante o acionamento.
 
-1. **Calibração Diferenciada de Potência (`setPALevel`):**
-   * **Gateway (`MEU_ID 0`):** Configurado em `RF24_PA_MIN` ($-18\text{ dBm}$). Por utilizar módulo com amplificador externo (`PA+LNA`), níveis maiores drenam picos de corrente acima da capacidade do regulador de $3{,}3\text{ V}$ do Arduino Nano e saturam os receptores vizinhos na bancada.
-   * **Nós Remotos (`MEU_ID 1` e `2`):** Configurados em `RF24_PA_LOW` ($-12\text{ dBm}$), oferecendo margem de potência $4\times$ superior para atravessar interferências Wi-Fi sem comprometer a estabilidade da alimentação.
-2. **Proteção de Corrente no Atuador (`D4`):** Ligar um LED diretamente entre `D4` e `GND` sem resistor limitador drena corrente excessiva do microcontrolador, provocando queda de tensão na linha de $3{,}3\text{ V}$ e travando o rádio do Nó 2. O resistor limitador mantém a tensão estável durante o acionamento.
-3. **Auto-Recuperação de Hardware (`garantirRadioAtivo()`):** A cada ciclo de execução, o firmware valida a conexão SPI e o canal ativo no chip; caso uma oscilação elétrica reinicie os registradores do nRF24L01+, o módulo é reinicializado e reconfigurado em menos de $1\text{ ms}$.
+### Calibração de Potência e Auto-Recuperação
+
+* **Potência diferenciada (`setPALevel`):** O **Gateway (`MEU_ID 0`)** opera em `RF24_PA_MIN` ($-18\text{ dBm}$) para evitar picos de consumo do módulo com antena externa (`PA+LNA`) no regulador de $3{,}3\text{ V}$ do Nano e impedir saturação de receptores próximos. Os **Nós 1 e 2** operam em `RF24_PA_LOW` ($-12\text{ dBm}$), garantindo margem de sinal $4\times$ maior para atravessar interferências Wi-Fi.
+* **Auto-recuperação (`garantirRadioAtivo()`):** A cada iteração do `loop()`, o firmware verifica a conectividade SPI e o registrador de canal do chip; caso uma oscilação elétrica reinicie o transceptor, o rádio é reconfigurado automaticamente em menos de $1\text{ ms}$.
 
 ---
 
-## 4. Anatomia do Quadro e Endereçamento (`struct PacoteIoT`)
+## 4. Anatomia do Quadro e Endereçamento
 
-Cada transmissão combina o cabeçalho físico gerenciado pelo chip nRF24L01+ (operando a $250\text{ kbps}$ para máxima sensibilidade de recepção, $\approx -94\text{ dBm}$) com a estrutura binária de **15 bytes** definida na camada de protocolo:
+O transceptor opera a **$250\text{ kbps}$** (máxima sensibilidade de recepção, $\approx -94\text{ dBm}$), encapsulando a estrutura binária `PacoteIoT` de **15 bytes** dentro do quadro físico gerenciado pelo hardware:
 
 ```text
 CAMADA FÍSICA (Controlada pelo Chip nRF24L01+ em 250 kbps)
@@ -131,29 +143,30 @@ DETALHAMENTO DO PAYLOAD — struct PacoteIoT (15 Bytes)
   4=ACK
 ```
 
-### Mecanismos de Controle do Quadro
-
-* **Isolamento Lógico por Endereço (`"IOT26"`):** Ambos os *pipes* de transmissão e recepção utilizam a assinatura de 5 bytes `"IOT26"`. O hardware descarta automaticamente quadros de outras equipes operando na mesma frequência.
-* **Confirmações Endereçadas (`setAutoAck(false)` + `MSG_ACK`):** Como todos os nós escutam o mesmo endereço para receber *Beacons* em difusão (`destino = 255`), o *Auto-ACK* nativo foi desativado para evitar que os Nós 1 e 2 respondam simultaneamente ao Gateway. A confirmação é feita por um quadro `MSG_ACK` explícito contendo o `seq` original.
-* **Deduplicação com Expiração (`pacoteNovo()`):** Se um `MSG_ACK` for perdido por ruído no retorno, o transmissor reenviará o quadro com o mesmo `seq`. O receptor compara `seq != ultimoSeqRecebido` (com janela de expiração de $3000\text{ ms}$) para impedir contagem duplicada no Gateway.
+* **Filtro por endereço (`"IOT26"`):** Ambos os *pipes* de escrita e leitura usam a assinatura de 5 bytes `"IOT26"`, descartando na camada física quadros de outras redes na mesma sala.
+* **Confirmações endereçadas (`setAutoAck(false)` + `MSG_ACK`):** O *Auto-ACK* nativo foi desativado para evitar colisões simultâneas dos Nós 1 e 2 ao responderem aos *Beacons* em difusão (`destino = 255`). A confirmação é feita por um quadro `MSG_ACK` explícito contendo o `seq` original.
+* **Deduplicação com expiração (`pacoteNovo()`):** Compara `seq != ultimoSeqRecebido` com janela de expiração de $3000\text{ ms}$, evitando contabilizar pacotes retransmitidos em duplicidade caso um `MSG_ACK` se perca no retorno.
 
 ---
 
-## 5. Protocolos de Acesso ao Meio e Confiabilidade (`CSMA/CA` + `ARQ`)
+## 5. Protocolos de Acesso ao Meio e Confiabilidade
 
 <p align="center">
-  <img src="img/Gemini_Generated_Image_k7i29rk7i29rk7i2(2).jpg" alt="Fluxograma do Protocolo CSMA/CA, CRC-16 e ARQ Stop-and-Wait" width="100%">
+  <img src="img/Gemini_Generated_Image_k7i29rk7i29rk7i2(2).jpg" alt="Fluxograma do Protocolo CSMA/CA, CRC-16 e ARQ Stop-and-Wait" width="92%">
+  <br>
+  <sub><em>Figura 2 — Pipeline de confiabilidade em três estágios: escuta física de portadora (CSMA/CA), verificação de integridade (CRC-16) e retransmissão com backoff exponencial (ARQ).</em></sub>
 </p>
 
-### Escolha Técnica: CSMA/CA + ARQ em vez de MACA (`RTS/CTS`)
+### Por que CSMA/CA + ARQ em vez de MACA (`RTS/CTS`)?
 
-O sistema implementa **CSMA/CA não-persistente com detecção física de portadora (`RPD`)** aliado ao **ARQ *Stop-and-Wait* com *backoff* exponencial**, em vez do protocolo **MACA** (*Multiple Access with Collision Avoidance* baseado na troca prévia `RTS/CTS`):
+| Critério | MACA (`RTS / CTS`) | Implementação Adotada (`CSMA/CA + ARQ`) |
+| :--- | :--- | :--- |
+| **Sobrecarga de controle** | Alta — exige 2 quadros extras antes de cada envio de **15 bytes** | Mínima — escuta física passiva sem ocupar o espectro antes do dado |
+| **Comutação RX $\leftrightarrow$ TX** | 4 transições por pacote ($130\ \mu\text{s}$ de PLL cada) | 2 transições por pacote (`DATA` $\rightarrow$ `ACK`) |
+| **Interferência Wi-Fi** | Roteadores Wi-Fi não interpretam `RTS/CTS` do nRF24L01+ | `radio.testRPD()` detecta diretamente energia Wi-Fi acima de $-64\text{ dBm}$ |
 
-1. **Eficiência para Quadros Curtos:** A carga útil possui apenas **15 bytes**. Preceder cada leitura de sensor com quadros `RTS` e `CTS` triplicaria a ocupação do canal para transportar 2 bytes úteis de leitura analógica.
-2. **Latência Half-Duplex do nRF24L01+:** Cada comutação RX $\leftrightarrow$ TX exige $130\ \mu\text{s}$ de estabilização do oscilador PLL; uma troca em 4 etapas (`RTS-CTS-DATA-ACK`) multiplicaria o tempo morto e os picos de corrente.
-3. **Convivência com Redes Wi-Fi:** Roteadores Wi-Fi não interpretam quadros `RTS/CTS` do nRF24L01+. A escuta física de energia no espectro via `radio.testRPD()` detecta diretamente a presença de portadoras Wi-Fi acima de $-64\text{ dBm}$.
-
-### Fluxograma Interno do Envio Confiável (`enviarConfiavel()`)
+<details>
+<summary>📐 <strong>Ver fluxograma completo da função <code>enviarConfiavel()</code> (ASCII)</strong></summary>
 
 ```text
                          [ Início: enviarConfiavel(pkt) ]
@@ -195,40 +208,42 @@ O sistema implementa **CSMA/CA não-persistente com detecção física de portad
                                      [ Retorna FALSE ]
                                      (Exibe [ERR] no log)
 ```
+</details>
 
 ---
 
-## 6. Gestão de Espectro, Interferência Wi-Fi e *Auto-Scan*
+## 6. Gestão de Espectro e Interferência Wi-Fi
 
 <p align="center">
-  <img src="img/Gemini_Generated_Image_k7i29rk7i29rk7i2.jpg" alt="Mapa de Espectro 2.4 GHz, Sobreposição Wi-Fi e Auto-Scan" width="100%">
+  <img src="img/Gemini_Generated_Image_k7i29rk7i29rk7i2.jpg" alt="Mapa de Espectro 2.4 GHz, Sobreposição Wi-Fi e Auto-Scan" width="92%">
+  <br>
+  <sub><em>Figura 3 — Distribuição espectral de 2400 a 2525 MHz comparando os canais sobrepostos ao Wi-Fi (12, 37 e 62) com o canal livre (100) e o mecanismo de Auto-Scan.</em></sub>
 </p>
 
-A frequência central de operação do transceptor nRF24L01+ nos 126 canais disponíveis (`0` a `125`) segue a relação:
+A sintonia dos 126 canais do nRF24L01+ (`0` a `125`) obedece à equação:
 
 $$
 f(\text{MHz}) = 2400 + \text{Canal}
 $$
 
-| Predefinição na Interface | Canal nRF24 | Frequência Central | Característica Espectral |
-| :--- | :---: | :---: | :--- |
-| **WiFi 1 (12)** | `12` | $2412\text{ MHz}$ | Centro do **Canal 1 do Wi-Fi** ($2401\text{–}2423\text{ MHz}$) — validação sob interferência real |
-| **WiFi 6 (37)** | `37` | $2437\text{ MHz}$ | Centro do **Canal 6 do Wi-Fi** ($2426\text{–}2448\text{ MHz}$) — validação sob interferência real |
-| **WiFi 11 (62)** | `62` | $2462\text{ MHz}$ | Centro do **Canal 11 do Wi-Fi** ($2451\text{–}2473\text{ MHz}$) — validação sob interferência real |
-| **Limpo (100)** | `100` | $2500\text{ MHz}$ | Acima do limite superior do Wi-Fi ($\approx 2484\text{ MHz}$) — operação livre de interferência |
+| Predefinição Web | Canal RF | Frequência Central | Sobreposição Espectral | Comportamento Esperado |
+| :--- | :---: | :---: | :--- | :--- |
+| **Limpo (100)** | `100` | $2500\text{ MHz}$ | Fora da banda Wi-Fi ($> 2484\text{ MHz}$) | `RPD` e `Retries` próximos de zero |
+| **WiFi 1 (12)** | `12` | $2412\text{ MHz}$ | Centro do **Canal 1 do Wi-Fi** ($2401\text{–}2423\text{ MHz}$) | Aumento de detecções `RPD` e retransmissões |
+| **WiFi 6 (37)** | `37` | $2437\text{ MHz}$ | Centro do **Canal 6 do Wi-Fi** ($2426\text{–}2448\text{ MHz}$) | Aumento de detecções `RPD` e retransmissões |
+| **WiFi 11 (62)** | `62` | $2462\text{ MHz}$ | Centro do **Canal 11 do Wi-Fi** ($2451\text{–}2473\text{ MHz}$) | Aumento de detecções `RPD` e retransmissões |
 
-### Sincronização de Frequência
-
-* **Migração Coordenada (`CH:`):** Ao alterar o canal pela interface web, o Gateway dispara **10 rajadas seguidas** de `MSG_BEACON` espaçadas por $18\text{ ms}$ na frequência antiga informando o canal de destino, migra seu próprio rádio e mantém *Beacons* acelerados a cada $80\text{ ms}$ durante $5\text{ s}$.
-* **Recuperação Autônoma (`buscarCanalGateway()`):** Caso um nó remoto reinicie ou perca a rajada de troca de canal, após $5000\text{ ms}$ sem tráfego ele varre sequencialmente todos os canais (`0` a `125`, escutando $25\text{ ms}$ por canal) até captar qualquer quadro válido da rede e travar novamente na frequência ativa.
+> [!TIP]
+> **Sincronização Dinâmica:** Ao trocar de canal pela interface, o Gateway dispara **10 rajadas seguidas** de `MSG_BEACON` espaçadas por $18\text{ ms}$ na frequência antiga e mantém *Beacons* rápidos a cada $80\text{ ms}$ por $5\text{ s}$. Caso algum nó perca a transição e fique $5000\text{ ms}$ sem tráfego, a rotina `buscarCanalGateway()` varre os canais `0..125` ($25\text{ ms}$/canal) até reencontrar a rede.
 
 ---
 
 ## 7. Diagramas Temporais e Máquinas de Estado
 
-### Sequência Temporal de um Ciclo Completo
+Para evitar colisões entre o primeiro salto (`Nó 1 → Nó 2`) e o segundo salto (`Nó 2 → Gateway`), o Nó 2 aguarda uma **janela de guarda de $15\text{ ms}$** após devolver o `MSG_ACK` ao Nó 1 antes de iniciar a transmissão de telemetria.
 
-Para evitar colisões entre o primeiro salto (`Nó 1 -> Nó 2`) e o segundo salto (`Nó 2 -> Gateway`), o Nó 2 insere uma janela de guarda de $15\text{ ms}$ após devolver o `MSG_ACK` ao Nó 1:
+<details>
+<summary>⏱️ <strong>Ver linha do tempo de troca de quadros entre os 3 nós (ASCII)</strong></summary>
 
 ```text
 NÓ 1 (Sensor)              NÓ 2 (Atuador)              GATEWAY (ID 0)            PC (Web UI)
@@ -247,8 +262,10 @@ NÓ 1 (Sensor)              NÓ 2 (Atuador)              GATEWAY (ID 0)         
      |                           |                           |                        |
      |<================ MSG_BEACON (a cada 1500 ms) =========|                        |
 ```
+</details>
 
-### Máquina de Estados de Resiliência dos Nós Remotos
+<details>
+<summary>🔄 <strong>Ver máquina de estados de resiliência dos nós remotos (ASCII)</strong></summary>
 
 ```text
                       +-----------------------------------+
@@ -271,15 +288,19 @@ NÓ 1 (Sensor)              NÓ 2 (Atuador)              GATEWAY (ID 0)         
                                   v
                      [ Sincronizado no Canal Ativo ]
 ```
+</details>
 
 ---
 
-## 8. Guia de Operação da Interface Web (`script.py`)
+## 8. Guia de Operação da Interface Web
 
-1. **Inicialização do Monitor Multi-Porta:** Feche o *Serial Monitor* da Arduino IDE e execute `python3 script.py` para abrir o servidor web local e escutar simultaneamente todas as portas `/dev/ttyUSB*` conectadas ao computador.
-2. **Sincronização Inicial via DTR:** Utilize o botão **Resetar Placas (DTR)** na interface para enviar um pulso sincronizado de reinicialização aos três microcontroladores e confirmar na tabela de portas a identificação de `GATEWAY (ID 0)`, `NÓ 1 (SENSOR)` e `NÓ 2 (ATUADOR)`.
-3. **Comandos de Supervisão e Controle:**
-   * `LED:1` / `LED:0` — Alterna para o modo `MANUAL` e aciona ou desliga o pino `D4` no Nó 2.
-   * `AUTO:1` — Restaura a autonomia M2M (`Sensor < Limiar` $\rightarrow$ `Atuador = 1`).
-   * `LIM:<valor>` — Atualiza dinamicamente o limiar de comparação do sensor (ex.: `LIM:300` ou `LIM:600`).
-   * `CH:<0..125>` — Migra toda a rede para um canal específico (`100` para operação limpa; `12`, `37` ou `62` para demonstração prática de `CSMA/CA` e `ARQ` sob tráfego Wi-Fi).
+1. **Inicialização do Monitor Multi-Porta:** Feche o *Serial Monitor* da Arduino IDE e execute `python3 script.py` para iniciar o painel web e abrir em paralelo todas as portas `/dev/ttyUSB*` conectadas.
+2. **Sincronização Inicial via DTR:** Utilize **Resetar Placas (DTR)** na interface para reiniciar os três microcontroladores simultaneamente e confirmar na tabela de portas a detecção de `GATEWAY (ID 0)`, `NÓ 1 (SENSOR)` e `NÓ 2 (ATUADOR)`.
+3. **Referência de Comandos de Controle:**
+
+| Comando | Ação na Rede |
+| :--- | :--- |
+| `LED:1` / `LED:0` | Alterna para o modo `MANUAL` e aciona ou desliga o pino `D4` no Nó 2 |
+| `AUTO:1` | Restaura a automação local M2M (`Sensor < Limiar` $\rightarrow$ `Atuador = 1`) |
+| `LIM:<valor>` | Atualiza dinamicamente o limiar de comparação do sensor (ex.: `LIM:300` ou `LIM:600`) |
+| `CH:<0..125>` | Migra toda a rede para o canal especificado (`100` livre; `12`, `37` ou `62` sobrepostos ao Wi-Fi) |
