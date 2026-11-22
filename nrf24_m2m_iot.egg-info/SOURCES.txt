@@ -1,0 +1,10 @@
+README.md
+pyproject.toml
+gateway/cli.py
+gateway/server.py
+nrf24_m2m_iot.egg-info/PKG-INFO
+nrf24_m2m_iot.egg-info/SOURCES.txt
+nrf24_m2m_iot.egg-info/dependency_links.txt
+nrf24_m2m_iot.egg-info/entry_points.txt
+nrf24_m2m_iot.egg-info/requires.txt
+nrf24_m2m_iot.egg-info/top_level.txt

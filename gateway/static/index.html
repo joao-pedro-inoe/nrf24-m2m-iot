@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IoT nRF24 — Depuração Multi-Porta</title>
+<style>
+  * { box-sizing: border-box; }
+  body { font-family: system-ui, sans-serif; background: #0d1015; color: #e5e7eb; max-width: 860px; margin: 14px auto; padding: 0 12px; }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  @media (max-width: 680px) { .grid { grid-template-columns: 1fr; } }
+  .box { background: #161a22; border: 1px solid #282e3b; border-radius: 8px; padding: 14px; margin-bottom: 12px; }
+  .title { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; color: #9ca3af; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+  .row { display: flex; justify-content: space-between; margin: 5px 0; font-size: 0.98rem; }
+  .btns { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
+  button { flex: 1; padding: 9px 10px; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; background: #29303d; color: #fff; font-size: 0.88rem; }
+  button:hover { filter: brightness(1.15); }
+  .on { background: #16a34a; }
+  .off { background: #dc2626; }
+  .auto { background: #0284c7; }
+  .warn-btn { background: #d97706; }
+  .sm { flex: 0 0 auto; padding: 4px 10px; font-size: 0.78rem; }
+  .sm.active { background: #0284c7; }
+  input, select { padding: 8px 10px; border-radius: 6px; border: 1px solid #374151; background: #0d1015; color: #fff; font-family: monospace; }
+  .badge { padding: 3px 8px; border-radius: 999px; font-size: 0.74rem; font-weight: 700; }
+  .b-ok { background: #14532d; color: #4ade80; }
+  .b-warn { background: #78350f; color: #fbbf24; }
+  .b-err { background: #7f1d1d; color: #fca5a5; }
+  .diag-box { border-left: 4px solid #f59e0b; padding: 12px 14px; border-radius: 8px; margin-bottom: 12px; background: #1a1814; }
+  .diag-ok { border-left-color: #22c55e; background: #111d16; }
+  .diag-erro { border-left-color: #ef4444; background: #211214; }
+  .diag-titulo { font-weight: 700; font-size: 0.95rem; margin-bottom: 4px; }
+  .diag-detalhe { font-size: 0.85rem; color: #d1d5db; line-height: 1.4; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.83rem; }
+  th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #242935; }
+  th { color: #9ca3af; font-weight: 600; }
+  #console {
+    background: #080a0e; border: 1px solid #242935; border-radius: 6px;
+    height: 270px; overflow-y: auto; padding: 10px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.8rem; line-height: 1.45;
+  }
+  .log-line { margin-bottom: 3px; word-break: break-word; }
+  .t-SYS  { color: #60a5fa; }
+  .t-TX   { color: #c084fc; }
+  .t-RF   { color: #4ade80; font-weight: 600; }
+  .t-RX   { color: #9ca3af; }
+  .t-NODE { color: #38bdf8; }
+  .t-ERR  { color: #f87171; font-weight: bold; }
+  .t-RAW  { color: #fbbf24; }
+</style>
+</head>
+<body>
+
+  <div id="diagCard" class="diag-box">
+  <div class="box" style="display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;">
+    <div style="background: #ffffff; padding: 8px 12px; border-radius: 6px; display: flex; align-items: center;">
+      <img src="/logo.png" alt="UTFPR" style="height: 44px; width: auto; display: block;">
+    </div>
+    <div style="flex: 1; min-width: 240px;">
+      <div style="font-size: 1.05rem; font-weight: 700; color: #f3f4f6;">Rede IoT Multi-Salto nRF24L01 (CSMA/CA + ARQ)</div>
+      <div style="font-size: 0.86rem; color: #9ca3af; margin-top: 3px;">
+        Disciplina: <b style="color: #e5e7eb;">OPT101 - Tópicos Especiais Em Interfaces Computacionais</b>
+      </div>
+      <div style="font-size: 0.84rem; color: #9ca3af; margin-top: 2px;">
+        Professor: <b style="color: #e5e7eb;">Paulo H. S.</b>
+      </div>
+    </div>
+  </div>
+    <div class="diag-titulo" id="diagTitulo">Analisando barramentos USB e enlace RF...</div>
+    <div class="diag-detalhe" id="diagDetalhe">Aguardando leitura inicial das portas.</div>
+  </div>
+
+  <div class="grid">
+    <div class="box">
+      <div class="title">
+        <span>Telemetria da Rede</span>
+        <span id="linkBadge" class="badge b-warn">AGUARDANDO RF</span>
+      </div>
+      <div class="row"><span>Sensor (Nó 1 / A0):</span><b id="sensor">0</b></div>
+      <div class="row"><span>Atuador (Nó 2 / D4):</span><b id="atuador">DESLIGADO</b></div>
+      <div class="row"><span>Modo / Limiar:</span><b id="modo">AUTO (500)</b></div>
+      <div class="row"><span>Canal RF / Pacotes OK:</span><b><span id="canal">100</span> | <span id="rxOk">0</span></b></div>
+      <div style="font-size: 0.8rem; color: #9ca3af; margin-top: 8px;">
+        RPD: <b id="rpd">0</b> | Retries: <b id="ret">0</b> | TX Web: <b id="txCnt">0</b> | Sync: <b id="sync">-</b>
+      </div>
+    </div>
+
+    <div class="box">
+      <div class="title"><span>Controles & Diagnóstico Físico</span></div>
+      <div class="btns">
+        <button class="on" onclick="cmd('LED:1')">Ligar</button>
+        <button class="off" onclick="cmd('LED:0')">Desligar</button>
+        <button class="auto" onclick="cmd('AUTO:1')">Auto (M2M)</button>
+      </div>
+      <div class="btns">
+        <input type="number" id="ch" min="0" max="125" value="100" style="width: 82px;">
+        <button class="auto" onclick="mudarCh(document.getElementById('ch').value)">Canal</button>
+        <button class="warn-btn" onclick="resetarPlacas()">Resetar Placas (DTR)</button>
+      </div>
+      <div class="btns">
+        <button onclick="mudarCh(100)">Limpo (100)</button>
+        <button onclick="mudarCh(12)">WiFi 1 (12)</button>
+        <button onclick="mudarCh(37)">WiFi 6 (37)</button>
+        <button onclick="mudarCh(62)">WiFi 11 (62)</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="box">
+    <div class="title"><span>Portas USB Monitoradas no PC</span></div>
+    <table>
+      <thead>
+        <tr><th>Porta</th><th>Função Detectada</th><th>Status</th><th>Linhas RX</th><th>Última Atividade</th></tr>
+      </thead>
+      <tbody id="tabelaPortas"></tbody>
+    </table>
+  </div>
+
+  <div class="box">
+    <div class="title">
+      <span>Monitor Serial & RF Multi-Porta</span>
+      <div style="display:flex; gap:5px; flex-wrap:wrap;">
+        <button class="sm active" id="f-ALL" onclick="setFiltro('ALL')">Todos</button>
+        <button class="sm" id="f-ERR" onclick="setFiltro('ERR')">Erros</button>
+        <button class="sm" id="f-RF" onclick="setFiltro('RF')">RF / Nós</button>
+        <button class="sm" id="btnPause" onclick="togglePause()">Pausar</button>
+        <button class="sm" onclick="limparConsole()">Limpar</button>
+      </div>
+    </div>
+    <div id="console"></div>
+    <div class="btns" style="margin-top: 8px;">
+      <select id="targetPorta"></select>
+      <input type="text" id="rawCmd" style="flex:1;" placeholder="Comando serial (ex: LED:1, AUTO:1, CH:100)" onkeydown="if(event.key==='Enter') enviarRaw()">
+      <button class="auto" style="flex: 0 0 95px;" onclick="enviarRaw()">Enviar</button>
+    </div>
+  </div>
+
+<script>
+  let lastLogId = 0;
+  let pausado = false;
+  let filtroAtual = 'ALL';
+  let portasConhecidas = [];
+
+  function cmd(c, porta='') {
+    fetch('/cmd?c=' + encodeURIComponent(c) + '&p=' + encodeURIComponent(porta));
+  }
+
+  function resetarPlacas() {
+    fetch('/reset');
+  }
+
+  function mudarCh(c) {
+    if (c !== '') {
+      cmd('CH:' + c);
+      document.getElementById('ch').value = c;
+    }
+  }
+
+  function enviarRaw() {
+    const inp = document.getElementById('rawCmd');
+    const porta = document.getElementById('targetPorta').value;
+    const val = inp.value.trim();
+    if (val) {
+      cmd(val, porta);
+      inp.value = '';
+    }
+  }
+
+  function setFiltro(f) {
+    filtroAtual = f;
+    ['ALL', 'ERR', 'RF'].forEach(k => {
+      document.getElementById('f-' + k).classList.toggle('active', k === f);
+    });
+    document.querySelectorAll('#console .log-line').forEach(el => {
+      const t = el.dataset.tipo;
+      el.style.display = passaFiltro(t) ? 'block' : 'none';
+    });
+  }
+
+  function passaFiltro(t) {
+    if (filtroAtual === 'ALL') return true;
+    if (filtroAtual === 'ERR') return t === 'ERR' || t === 'RAW';
+    if (filtroAtual === 'RF') return t === 'RF' || t === 'NODE' || t === 'TX';
+    return true;
+  }
+
+  function togglePause() {
+    pausado = !pausado;
+    document.getElementById('btnPause').innerText = pausado ? 'Retomar' : 'Pausar';
+  }
+
+  function limparConsole() {
+    document.getElementById('console').innerHTML = '';
+  }
+
+  function esc(str) {
+    return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+
+  setInterval(() => {
+    fetch('/status?since=' + lastLogId)
+      .then(r => r.json())
+      .then(d => {
+        const st = d.estado;
+        document.getElementById('sensor').innerText = st.sensor;
+        const at = document.getElementById('atuador');
+        at.innerText = st.atuador ? 'LIGADO' : 'DESLIGADO';
+        at.style.color = st.atuador ? '#4ade80' : '#f87171';
+        document.getElementById('modo').innerText = st.modoAuto ? `AUTO (${st.limiar})` : 'MANUAL';
+        document.getElementById('canal').innerText = st.canal;
+        document.getElementById('rxOk').innerText = st.rxOk;
+        document.getElementById('rpd').innerText = st.rpdHits;
+        document.getElementById('ret').innerText = st.retries;
+        document.getElementById('txCnt').innerText = d.txCount;
+        document.getElementById('sync').innerText = st.sync;
+
+        const badge = document.getElementById('linkBadge');
+        badge.innerText = d.rfAtivo ? 'ENLACE RF ATIVO' : 'SEM RETORNO NÓ 1/2';
+        badge.className = 'badge ' + (d.rfAtivo ? 'b-ok' : 'b-warn');
+
+        const diagCard = document.getElementById('diagCard');
+        diagCard.className = 'diag-box ' + (d.diag.nivel === 'ok' ? 'diag-ok' : (d.diag.nivel === 'erro' ? 'diag-erro' : ''));
+        document.getElementById('diagTitulo').innerText = d.diag.titulo;
+        document.getElementById('diagDetalhe').innerText = d.diag.detalhe;
+
+        const tbody = document.getElementById('tabelaPortas');
+        const keys = Object.keys(d.portas).sort();
+        tbody.innerHTML = keys.map(p => {
+          const info = d.portas[p];
+          const cor = info.erro_hw ? '#f87171' : (info.status === 'OK' ? '#4ade80' : '#fbbf24');
+          return `<tr>
+            <td><b>${esc(p)}</b></td>
+            <td>${esc(info.papel)}</td>
+            <td style="color:${cor}; font-weight:bold;">${esc(info.status)}</td>
+            <td>${info.rx_linhas}</td>
+            <td>${esc(info.ultimo_msg)}</td>
+          </tr>`;
+        }).join('');
+
+        if (JSON.stringify(keys) !== JSON.stringify(portasConhecidas)) {
+          portasConhecidas = keys;
+          const sel = document.getElementById('targetPorta');
+          sel.innerHTML = `<option value="">Gateway (${esc(d.gateway)})</option>` +
+            keys.map(p => `<option value="${esc(p)}">${esc(p)}</option>`).join('');
+        }
+
+        if (d.logs && d.logs.length > 0) {
+          const box = document.getElementById('console');
+          d.logs.forEach(item => {
+            lastLogId = Math.max(lastLogId, item.id);
+            const div = document.createElement('div');
+            div.className = 'log-line t-' + item.tipo;
+            div.dataset.tipo = item.tipo;
+            div.style.display = passaFiltro(item.tipo) ? 'block' : 'none';
+            div.innerHTML = `[${item.ts}] [${item.tipo}] [${esc(item.porta)}] ${esc(item.msg)}`;
+            box.appendChild(div);
+          });
+          while (box.children.length > 300) {
+            box.removeChild(box.firstChild);
+          }
+          if (!pausado) {
+            box.scrollTop = box.scrollHeight;
+          }
+        }
+      })
+      .catch(() => {});
+  }, 600);
+</script>
+</body>
+</html>

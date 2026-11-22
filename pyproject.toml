@@ -1,0 +1,18 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "nrf24-m2m-iot"
+version = "0.1.0"
+description = "Gateway e CLI para rede IoT multi-salto nRF24L01"
+requires-python = ">=3.9"
+dependencies = [
+    "pyserial>=3.5",
+]
+
+[project.scripts]
+nrf-iot = "gateway.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["gateway*"]
