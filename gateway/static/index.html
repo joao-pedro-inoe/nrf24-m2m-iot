@@ -10,6 +10,10 @@
   .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
   @media (max-width: 680px) { .grid { grid-template-columns: 1fr; } }
   .box { background: #161a22; border: 1px solid #282e3b; border-radius: 8px; padding: 14px; margin-bottom: 12px; }
+  .header-bar { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+  .inst-info { display: flex; align-items: center; gap: 14px; flex: 1; min-width: 280px; }
+  .qr-card { display: flex; align-items: center; gap: 12px; background: #1e293b; border: 1px solid #334155; padding: 8px 12px; border-radius: 8px; }
+  .qr-link-box { background: #ffffff; padding: 6px; border-radius: 6px; display: inline-flex; line-height: 0; flex-shrink: 0; }
   .title { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; color: #9ca3af; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
   .row { display: flex; justify-content: space-between; margin: 5px 0; font-size: 0.98rem; }
   .btns { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
@@ -51,21 +55,45 @@
 </head>
 <body>
 
-  <div id="diagCard" class="diag-box">
-  <div class="box" style="display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;">
-    <div style="background: #ffffff; padding: 8px 12px; border-radius: 6px; display: flex; align-items: center;">
-      <img src="/logo.png" alt="UTFPR" style="height: 44px; width: auto; display: block;">
-    </div>
-    <div style="flex: 1; min-width: 240px;">
-      <div style="font-size: 1.05rem; font-weight: 700; color: #f3f4f6;">Rede IoT Multi-Salto nRF24L01 (CSMA/CA + ARQ)</div>
-      <div style="font-size: 0.86rem; color: #9ca3af; margin-top: 3px;">
-        Disciplina: <b style="color: #e5e7eb;">OPT101 - Tópicos Especiais Em Interfaces Computacionais</b>
+  <div class="box header-bar">
+    <div class="inst-info">
+      <div style="background: #ffffff; padding: 8px 12px; border-radius: 6px; display: flex; align-items: center; flex-shrink: 0;">
+        <img src="logo.png" alt="UTFPR" style="height: 44px; width: auto; display: block;">
       </div>
-      <div style="font-size: 0.84rem; color: #9ca3af; margin-top: 2px;">
-        Professor: <b style="color: #e5e7eb;">Paulo H. S.</b>
+      <div>
+        <div style="font-size: 1.05rem; font-weight: 700; color: #f3f4f6;">Rede IoT Multi-Salto nRF24L01 (CSMA/CA + ARQ)</div>
+        <div style="font-size: 0.85rem; color: #9ca3af; margin-top: 3px;">
+          Disciplina: <b style="color: #e5e7eb;">OPT101 - Tópicos Especiais Em Interfaces Computacionais</b>
+        </div>
+        <div style="font-size: 0.83rem; color: #9ca3af; margin-top: 2px;">
+          Professor: <b style="color: #e5e7eb;">Paulo H. S.</b>
+        </div>
+      </div>
+    </div>
+
+    <div class="qr-card">
+      <a href="page.html" target="_blank" rel="noopener noreferrer" title="Abrir documentação interativa (page.html)" class="qr-link-box">
+        <canvas id="qrCanvas" width="96" height="96" style="display: block;"></canvas>
+      </a>
+      <div style="display: flex; flex-direction: column; gap: 4px;">
+        <span style="font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; color: #94a3b8; font-weight: 700;">
+          Documentação Interativa
+        </span>
+        <strong style="font-size: 13px; color: #f8fafc;">
+          Arquitetura &amp; Protocolos
+        </strong>
+        <a href="page.html" target="_blank" rel="noopener noreferrer"
+           style="color: #38bdf8; font-size: 12px; text-decoration: none; font-weight: 600;">
+          Abrir página do projeto ↗
+        </a>
+        <span id="qrUrlLabel" style="font-size: 10px; color: #64748b; font-family: monospace; word-break: break-all;">
+          page.html
+        </span>
       </div>
     </div>
   </div>
+
+  <div id="diagCard" class="diag-box">
     <div class="diag-titulo" id="diagTitulo">Analisando barramentos USB e enlace RF...</div>
     <div class="diag-detalhe" id="diagDetalhe">Aguardando leitura inicial das portas.</div>
   </div>
@@ -86,7 +114,7 @@
     </div>
 
     <div class="box">
-      <div class="title"><span>Controles & Diagnóstico Físico</span></div>
+      <div class="title"><span>Controles &amp; Diagnóstico Físico</span></div>
       <div class="btns">
         <button class="on" onclick="cmd('LED:1')">Ligar</button>
         <button class="off" onclick="cmd('LED:0')">Desligar</button>
@@ -118,7 +146,7 @@
 
   <div class="box">
     <div class="title">
-      <span>Monitor Serial & RF Multi-Porta</span>
+      <span>Monitor Serial &amp; RF Multi-Porta</span>
       <div style="display:flex; gap:5px; flex-wrap:wrap;">
         <button class="sm active" id="f-ALL" onclick="setFiltro('ALL')">Todos</button>
         <button class="sm" id="f-ERR" onclick="setFiltro('ERR')">Erros</button>
@@ -136,6 +164,214 @@
   </div>
 
 <script>
+  // Gerador de QR Code (ISO/IEC 18004, Versões 1..5, ECC-L) apontando para page.html
+  (function renderQrPageHtml() {
+    const targetUrl = new URL('page.html', window.location.href).href;
+    const label = document.getElementById('qrUrlLabel');
+    if (label) label.textContent = targetUrl;
+
+    const bytes = new TextEncoder().encode(targetUrl);
+    const specs = [
+      { ver: 1, max: 17, dataCw: 19, ecCw: 7, align: [] },
+      { ver: 2, max: 32, dataCw: 34, ecCw: 10, align: [6, 18] },
+      { ver: 3, max: 53, dataCw: 55, ecCw: 15, align: [6, 22] },
+      { ver: 4, max: 78, dataCw: 80, ecCw: 20, align: [6, 26] },
+      { ver: 5, max: 106, dataCw: 108, ecCw: 26, align: [6, 30] }
+    ];
+    const spec = specs.find(s => bytes.length <= s.max) || specs[specs.length - 1];
+    const payload = bytes.slice(0, spec.max);
+
+    const EXP = new Uint8Array(512), LOG = new Uint8Array(256);
+    let x = 1;
+    for (let i = 0; i < 255; i++) {
+      EXP[i] = x; LOG[x] = i; x <<= 1;
+      if (x & 0x100) x ^= 0x11d;
+    }
+    for (let i = 255; i < 512; i++) EXP[i] = EXP[i - 255];
+    const gfMul = (a, b) => (a === 0 || b === 0) ? 0 : EXP[LOG[a] + LOG[b]];
+
+    let gen = [1];
+    for (let i = 0; i < spec.ecCw; i++) {
+      const next = new Array(gen.length + 1).fill(0);
+      for (let j = 0; j < gen.length; j++) {
+        next[j] ^= gen[j];
+        next[j + 1] ^= gfMul(gen[j], EXP[i]);
+      }
+      gen = next;
+    }
+
+    const bits = [];
+    const pushBits = (val, len) => {
+      for (let i = len - 1; i >= 0; i--) bits.push((val >> i) & 1);
+    };
+    pushBits(0b0100, 4);
+    pushBits(payload.length, 8);
+    for (const b of payload) pushBits(b, 8);
+    const totalDataBits = spec.dataCw * 8;
+    pushBits(0, Math.min(4, totalDataBits - bits.length));
+    while (bits.length % 8 !== 0) bits.push(0);
+    const pads = [0xec, 0x11];
+    for (let i = 0; bits.length < totalDataBits; i++) pushBits(pads[i % 2], 8);
+
+    const dataBytes = new Uint8Array(spec.dataCw);
+    for (let i = 0; i < spec.dataCw; i++) {
+      let v = 0;
+      for (let b = 0; b < 8; b++) v = (v << 1) | bits[i * 8 + b];
+      dataBytes[i] = v;
+    }
+
+    const rsBuf = new Uint8Array(spec.dataCw + spec.ecCw);
+    rsBuf.set(dataBytes);
+    for (let i = 0; i < spec.dataCw; i++) {
+      const coef = rsBuf[i];
+      if (coef !== 0) {
+        for (let j = 1; j < gen.length; j++) rsBuf[i + j] ^= gfMul(gen[j], coef);
+      }
+    }
+    const allCw = rsBuf;
+
+    const size = spec.ver * 4 + 17;
+    const mod = Array.from({ length: size }, () => new Uint8Array(size));
+    const fn = Array.from({ length: size }, () => new Uint8Array(size));
+    const setFn = (r, c, v) => {
+      if (r >= 0 && r < size && c >= 0 && c < size) {
+        mod[r][c] = v ? 1 : 0;
+        fn[r][c] = 1;
+      }
+    };
+
+    const drawFinder = (r0, c0) => {
+      for (let dr = -1; dr <= 7; dr++) {
+        for (let dc = -1; dc <= 7; dc++) {
+          const dark = dr >= 0 && dr <= 6 && dc >= 0 && dc <= 6 &&
+            (dr === 0 || dr === 6 || dc === 0 || dc === 6 || (dr >= 2 && dr <= 4 && dc >= 2 && dc <= 4));
+          setFn(r0 + dr, c0 + dc, dark);
+        }
+      }
+    };
+    drawFinder(0, 0);
+    drawFinder(0, size - 7);
+    drawFinder(size - 7, 0);
+
+    for (let i = 8; i < size - 8; i++) {
+      setFn(6, i, i % 2 === 0);
+      setFn(i, 6, i % 2 === 0);
+    }
+
+    for (const ar of spec.align) {
+      for (const ac of spec.align) {
+        let overlap = false;
+        for (let dr = -2; dr <= 2; dr++) {
+          for (let dc = -2; dc <= 2; dc++) {
+            if (fn[ar + dr][ac + dc]) overlap = true;
+          }
+        }
+        if (!overlap) {
+          for (let dr = -2; dr <= 2; dr++) {
+            for (let dc = -2; dc <= 2; dc++) {
+              setFn(ar + dr, ac + dc, Math.max(Math.abs(dr), Math.abs(dc)) !== 1);
+            }
+          }
+        }
+      }
+    }
+
+    setFn(size - 8, 8, 1);
+    for (let i = 0; i < 9; i++) { setFn(8, i, 0); setFn(i, 8, 0); }
+    for (let i = 0; i < 8; i++) { setFn(8, size - 1 - i, 0); setFn(size - 1 - i, 8, 0); }
+
+    const maskFns = [
+      (r, c) => (r + c) % 2 === 0,
+      (r, c) => r % 2 === 0,
+      (r, c) => c % 3 === 0,
+      (r, c) => (r + c) % 3 === 0,
+      (r, c) => (Math.floor(r / 2) + Math.floor(c / 3)) % 2 === 0,
+      (r, c) => ((r * c) % 2 + (r * c) % 3) === 0,
+      (r, c) => (((r * c) % 2 + (r * c) % 3) % 2) === 0,
+      (r, c) => (((r + c) % 2 + (r * c) % 3) % 2) === 0
+    ];
+
+    const buildGrid = (maskIdx) => {
+      const g = mod.map(row => Uint8Array.from(row));
+      let bitIdx = 0;
+      const totalBits = allCw.length * 8;
+      let up = true;
+      for (let right = size - 1; right >= 1; right -= 2) {
+        if (right === 6) right--;
+        for (let vert = 0; vert < size; vert++) {
+          const r = up ? (size - 1 - vert) : vert;
+          for (let j = 0; j < 2; j++) {
+            const c = right - j;
+            if (!fn[r][c]) {
+              let bit = 0;
+              if (bitIdx < totalBits) {
+                bit = (allCw[bitIdx >> 3] >> (7 - (bitIdx & 7))) & 1;
+                bitIdx++;
+              }
+              if (maskFns[maskIdx](r, c)) bit ^= 1;
+              g[r][c] = bit;
+            }
+          }
+        }
+        up = !up;
+      }
+
+      const d = (1 << 3) | maskIdx;
+      let rem = d << 10;
+      for (let i = 4; i >= 0; i--) {
+        if (rem & (1 << (i + 10))) rem ^= (0x537 << i);
+      }
+      const fmt = ((d << 10) | rem) ^ 0x5412;
+      for (let i = 0; i < 15; i++) {
+        const b = (fmt >> i) & 1;
+        if (i < 6) g[8][i] = b;
+        else if (i === 6) g[8][7] = b;
+        else if (i === 7) g[8][8] = b;
+        else if (i === 8) g[7][8] = b;
+        else g[14 - i][8] = b;
+
+        if (i < 7) g[size - 1 - i][8] = b;
+        else g[8][size - 15 + i] = b;
+      }
+      return g;
+    };
+
+    let bestGrid = null, bestDiff = Infinity;
+    for (let m = 0; m < 8; m++) {
+      const cand = buildGrid(m);
+      let dark = 0;
+      for (let r = 0; r < size; r++) for (let c = 0; c < size; c++) dark += cand[r][c];
+      const diff = Math.abs(dark - (size * size) / 2);
+      if (diff < bestDiff) { bestDiff = diff; bestGrid = cand; }
+    }
+
+    const canvas = document.getElementById('qrCanvas');
+    if (canvas && bestGrid) {
+      const ctx = canvas.getContext('2d');
+      const margin = 2;
+      const total = size + margin * 2;
+      const px = 96;
+      canvas.width = px;
+      canvas.height = px;
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, px, px);
+      ctx.fillStyle = '#000000';
+      const cell = px / total;
+      for (let r = 0; r < size; r++) {
+        for (let c = 0; c < size; c++) {
+          if (bestGrid[r][c]) {
+            ctx.fillRect(
+              Math.floor((c + margin) * cell),
+              Math.floor((r + margin) * cell),
+              Math.ceil(cell),
+              Math.ceil(cell)
+            );
+          }
+        }
+      }
+    }
+  })();
+
   let lastLogId = 0;
   let pausado = false;
   let filtroAtual = 'ALL';

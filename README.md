@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="logo_2.png" alt="Logo UTFPR - Universidade Tecnológica Federal do Paraná" width="340">
+  <img src="img/logo_2.png" alt="Logo UTFPR - Universidade Tecnológica Federal do Paraná" width="340">
 </p>
 
 <h3 align="center">Universidade Tecnológica Federal do Paraná (UTFPR)</h3>
@@ -42,7 +42,7 @@ A solução combina **controle autônomo máquina-a-máquina (M2M)** — permiti
 ## 2. Arquitetura da Rede e Papéis dos Nós (`MEU_ID`)
 
 <p align="center">
-  <img src="Gemini_Generated_Image_k7i29rk7i29rk7i2(1).jpg" alt="Arquitetura Híbrida de Três Nós com Arduino Nano e nRF24L01" width="100%">
+  <img src="img/Gemini_Generated_Image_k7i29rk7i29rk7i2(1).jpg" alt="Arquitetura Híbrida de Três Nós com Arduino Nano e nRF24L01" width="100%">
 </p>
 
 A topologia opera em **dois saltos no sentido ascendente** (telemetria consolidada) e **difusão direta no sentido descendente** (controle e sincronização de parâmetros):
@@ -142,7 +142,7 @@ DETALHAMENTO DO PAYLOAD — struct PacoteIoT (15 Bytes)
 ## 5. Protocolos de Acesso ao Meio e Confiabilidade (`CSMA/CA` + `ARQ`)
 
 <p align="center">
-  <img src="Gemini_Generated_Image_k7i29rk7i29rk7i2(2).jpg" alt="Fluxograma do Protocolo CSMA/CA, CRC-16 e ARQ Stop-and-Wait" width="100%">
+  <img src="img/Gemini_Generated_Image_k7i29rk7i29rk7i2(2).jpg" alt="Fluxograma do Protocolo CSMA/CA, CRC-16 e ARQ Stop-and-Wait" width="100%">
 </p>
 
 ### Escolha Técnica: CSMA/CA + ARQ em vez de MACA (`RTS/CTS`)
@@ -201,7 +201,7 @@ O sistema implementa **CSMA/CA não-persistente com detecção física de portad
 ## 6. Gestão de Espectro, Interferência Wi-Fi e *Auto-Scan*
 
 <p align="center">
-  <img src="Gemini_Generated_Image_k7i29rk7i29rk7i2.jpg" alt="Mapa de Espectro 2.4 GHz, Sobreposição Wi-Fi e Auto-Scan" width="100%">
+  <img src="img/Gemini_Generated_Image_k7i29rk7i29rk7i2.jpg" alt="Mapa de Espectro 2.4 GHz, Sobreposição Wi-Fi e Auto-Scan" width="100%">
 </p>
 
 A frequência central de operação do transceptor nRF24L01+ nos 126 canais disponíveis (`0` a `125`) segue a relação:
