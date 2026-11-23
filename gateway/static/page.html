@@ -3,79 +3,84 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>UTFPR • OPT101 — Rede IoT Sem Fio Híbrida (Arduino Nano &amp; nRF24L01+)</title>
+  <title>UTFPR • OPT101 — Engenharia Interna do Firmware & Protocolo nRF24L01+</title>
   <style>
-    /* ==========================================================================
-       DESIGN TOKENS & PALETA INSTITUCIONAL / TÉCNICA (100% AUTOCONTIDA)
-       ========================================================================== */
     :root {
-      --bg-base: #0f172a;
-      --bg-surface: #1e293b;
-      --bg-panel: #0b1120;
-      --bg-card-hover: #263449;
-      --border-subtle: rgba(148, 163, 184, 0.18);
-      --border-strong: rgba(56, 189, 248, 0.42);
+      --bg-base: #0b1120;
+      --bg-surface: #131c31;
+      --bg-panel: #080d1a;
+      --bg-code: #060a14;
+      --bg-card-hover: #1b2742;
+      --border-subtle: rgba(148, 163, 184, 0.16);
+      --border-strong: rgba(56, 189, 248, 0.38);
 
       --text-primary: #f8fafc;
       --text-secondary: #cbd5e1;
       --text-muted: #94a3b8;
 
       --accent-cyan: #38bdf8;
-      --accent-cyan-dim: rgba(56, 189, 248, 0.14);
+      --accent-cyan-dim: rgba(56, 189, 248, 0.13);
       --accent-emerald: #10b981;
-      --accent-emerald-dim: rgba(16, 185, 129, 0.15);
+      --accent-emerald-dim: rgba(16, 185, 129, 0.14);
       --accent-amber: #f59e0b;
-      --accent-amber-dim: rgba(245, 158, 11, 0.15);
-      --accent-danger: #ef4444;
-      --accent-danger-dim: rgba(239, 68, 68, 0.15);
+      --accent-amber-dim: rgba(245, 158, 11, 0.14);
+      --accent-purple: #a78bfa;
+      --accent-purple-dim: rgba(167, 139, 250, 0.14);
+      --accent-rose: #fb7185;
+      --accent-rose-dim: rgba(251, 113, 133, 0.14);
       --utfpr-yellow: #ffcc00;
       --utfpr-yellow-dim: rgba(255, 204, 0, 0.14);
 
       --radius-lg: 18px;
       --radius-md: 12px;
       --radius-sm: 8px;
-      --shadow-card: 0 12px 32px rgba(2, 6, 23, 0.45);
-      --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+      --shadow-card: 0 14px 36px rgba(2, 6, 23, 0.55);
+      --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
       --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
     }
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
 
     html {
       scroll-behavior: smooth;
       background-color: var(--bg-base);
       color: var(--text-primary);
       font-family: var(--font-sans);
-      line-height: 1.6;
-      -webkit-text-size-adjust: 100%;
+      line-height: 1.62;
     }
 
     body {
       background:
-        radial-gradient(circle at 12% 0%, rgba(56, 189, 248, 0.10), transparent 36%),
-        radial-gradient(circle at 88% 8%, rgba(255, 204, 0, 0.07), transparent 32%),
+        radial-gradient(circle at 10% 0%, rgba(56, 189, 248, 0.09), transparent 34%),
+        radial-gradient(circle at 90% 6%, rgba(255, 204, 0, 0.06), transparent 30%),
+        radial-gradient(circle at 50% 60%, rgba(16, 185, 129, 0.04), transparent 45%),
         var(--bg-base);
       color: var(--text-primary);
       overflow-x: hidden;
       min-height: 100vh;
     }
 
+    code {
+      font-family: var(--font-mono);
+      font-size: 0.88em;
+      background: rgba(148, 163, 184, 0.12);
+      color: #e2e8f0;
+      padding: 2px 6px;
+      border-radius: 5px;
+    }
+
     .container {
       width: 100%;
-      max-width: 1120px;
+      max-width: 1160px;
       margin: 0 auto;
       padding: 0 16px;
     }
 
     /* ==========================================================================
-       CABEÇALHO INSTITUCIONAL UTFPR & HERO
+       CABEÇALHO INSTITUCIONAL UTFPR & HERO TÉCNICO
        ========================================================================== */
     .hero {
-      padding: 24px 0 28px;
+      padding: 24px 0 30px;
       border-bottom: 1px solid var(--border-subtle);
     }
 
@@ -85,22 +90,16 @@
       align-items: center;
       justify-content: space-between;
       gap: 14px;
-      background: rgba(30, 41, 59, 0.72);
+      background: rgba(19, 28, 49, 0.82);
       border: 1px solid var(--border-subtle);
       border-radius: var(--radius-md);
-      padding: 12px 16px;
+      padding: 12px 18px;
       margin-bottom: 22px;
-      backdrop-filter: blur(8px);
-    }
-
-    .utfpr-logo-wrap {
-      display: flex;
-      align-items: center;
-      gap: 12px;
+      backdrop-filter: blur(10px);
     }
 
     .utfpr-svg {
-      width: 178px;
+      width: 176px;
       max-width: 100%;
       height: auto;
       display: block;
@@ -115,9 +114,8 @@
       color: #fef08a;
       font-size: 0.82rem;
       font-weight: 600;
-      padding: 7px 13px;
+      padding: 7px 14px;
       border-radius: 999px;
-      letter-spacing: 0.01em;
     }
 
     .course-pill .dot {
@@ -129,58 +127,81 @@
       flex-shrink: 0;
     }
 
+    .hero-eyebrow {
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--accent-emerald);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 8px;
+    }
+
     .hero-title {
-      font-size: clamp(1.55rem, 4vw, 2.35rem);
+      font-size: clamp(1.6rem, 4vw, 2.4rem);
       font-weight: 800;
-      line-height: 1.2;
+      line-height: 1.18;
       letter-spacing: -0.02em;
       margin-bottom: 12px;
-      color: var(--text-primary);
     }
 
-    .hero-title span {
-      color: var(--accent-cyan);
-    }
+    .hero-title span { color: var(--accent-cyan); }
 
     .hero-subtitle {
-      font-size: clamp(0.96rem, 2.2vw, 1.08rem);
+      font-size: clamp(0.96rem, 2.1vw, 1.06rem);
       color: var(--text-secondary);
-      max-width: 840px;
+      max-width: 880px;
       margin-bottom: 20px;
     }
 
-    .hero-badges {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
+    .hero-kpis {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
     }
 
-    .tech-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      font-family: var(--font-mono);
-      font-size: 0.78rem;
-      font-weight: 600;
-      padding: 5px 11px;
-      border-radius: 999px;
+    @media (min-width: 768px) {
+      .hero-kpis { grid-template-columns: repeat(5, 1fr); }
+    }
+
+    .kpi-card {
       background: var(--bg-surface);
       border: 1px solid var(--border-subtle);
-      color: var(--text-secondary);
+      border-radius: var(--radius-md);
+      padding: 12px 14px;
     }
 
-    .tech-badge.cyan { border-color: rgba(56, 189, 248, 0.35); color: var(--accent-cyan); }
-    .tech-badge.emerald { border-color: rgba(16, 185, 129, 0.35); color: var(--accent-emerald); }
-    .tech-badge.amber { border-color: rgba(245, 158, 11, 0.35); color: var(--accent-amber); }
+    .kpi-card span {
+      display: block;
+      font-size: 0.74rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .kpi-card strong {
+      display: block;
+      font-family: var(--font-mono);
+      font-size: 1.05rem;
+      margin-top: 2px;
+      color: var(--accent-cyan);
+    }
+
+    .kpi-card small {
+      display: block;
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      margin-top: 2px;
+    }
 
     /* ==========================================================================
-       NAVEGAÇÃO RÁPIDA MOBILE-FIRST
+       NAVEGAÇÃO STICKY
        ========================================================================== */
     .quick-nav {
       position: sticky;
       top: 0;
       z-index: 40;
-      background: rgba(15, 23, 42, 0.92);
+      background: rgba(11, 17, 32, 0.94);
       backdrop-filter: blur(10px);
       border-bottom: 1px solid var(--border-subtle);
       padding: 10px 0;
@@ -191,38 +212,33 @@
       gap: 8px;
       overflow-x: auto;
       scrollbar-width: none;
-      padding-bottom: 2px;
     }
-
-    .nav-scroll::-webkit-scrollbar {
-      display: none;
-    }
+    .nav-scroll::-webkit-scrollbar { display: none; }
 
     .nav-link {
       flex: 0 0 auto;
       text-decoration: none;
-      font-size: 0.84rem;
+      font-size: 0.83rem;
       font-weight: 600;
       color: var(--text-secondary);
       background: var(--bg-surface);
       border: 1px solid var(--border-subtle);
-      padding: 8px 14px;
+      padding: 7px 14px;
       border-radius: 999px;
       transition: all 0.2s ease;
     }
 
-    .nav-link:hover,
-    .nav-link:focus-visible {
+    .nav-link:hover {
       color: var(--text-primary);
       border-color: var(--accent-cyan);
       background: var(--accent-cyan-dim);
     }
 
     /* ==========================================================================
-       SEÇÕES E CARDS GERAIS
+       SEÇÕES E CARDS
        ========================================================================== */
     main {
-      padding: 28px 0 48px;
+      padding: 28px 0 54px;
       display: flex;
       flex-direction: column;
       gap: 36px;
@@ -237,14 +253,10 @@
     }
 
     @media (min-width: 768px) {
-      .section-card {
-        padding: 28px 28px;
-      }
+      .section-card { padding: 28px 30px; }
     }
 
-    .section-header {
-      margin-bottom: 20px;
-    }
+    .section-header { margin-bottom: 20px; }
 
     .section-kicker {
       display: inline-block;
@@ -258,7 +270,7 @@
     }
 
     .section-title {
-      font-size: clamp(1.25rem, 3vw, 1.6rem);
+      font-size: clamp(1.25rem, 3vw, 1.62rem);
       font-weight: 700;
       color: var(--text-primary);
       margin-bottom: 6px;
@@ -270,12 +282,12 @@
     }
 
     /* ==========================================================================
-       BOTÕES INTERATIVOS PADRÃO
+       BOTÕES & FILTROS
        ========================================================================== */
     .btn-group {
       display: flex;
       flex-wrap: wrap;
-      gap: 10px;
+      gap: 8px;
       margin-bottom: 18px;
     }
 
@@ -283,605 +295,444 @@
       appearance: none;
       cursor: pointer;
       font-family: var(--font-sans);
-      font-size: 0.88rem;
+      font-size: 0.85rem;
       font-weight: 600;
-      min-height: 44px;
-      padding: 10px 16px;
+      min-height: 40px;
+      padding: 8px 14px;
       border-radius: var(--radius-md);
       border: 1px solid var(--border-subtle);
       background: var(--bg-panel);
       color: var(--text-secondary);
       display: inline-flex;
       align-items: center;
-      justify-content: center;
-      gap: 8px;
+      gap: 7px;
       transition: all 0.2s ease;
-      user-select: none;
     }
 
-    .btn:hover {
-      border-color: var(--accent-cyan);
-      color: var(--text-primary);
-    }
-
-    .btn.active-cyan {
-      background: var(--accent-cyan-dim);
-      border-color: var(--accent-cyan);
-      color: var(--accent-cyan);
-      box-shadow: 0 0 0 1px rgba(56, 189, 248, 0.25);
-    }
-
-    .btn.active-emerald {
-      background: var(--accent-emerald-dim);
-      border-color: var(--accent-emerald);
-      color: var(--accent-emerald);
-      box-shadow: 0 0 0 1px rgba(16, 185, 129, 0.25);
-    }
-
-    .btn.active-amber {
-      background: var(--accent-amber-dim);
-      border-color: var(--accent-amber);
-      color: var(--accent-amber);
-      box-shadow: 0 0 0 1px rgba(245, 158, 11, 0.25);
-    }
-
-    .btn.active-danger {
-      background: var(--accent-danger-dim);
-      border-color: var(--accent-danger);
-      color: #fca5a5;
-      box-shadow: 0 0 0 1px rgba(239, 68, 68, 0.25);
-    }
-
-    .btn-primary {
-      background: linear-gradient(135deg, #0284c7, #0ea5e9);
-      border-color: #38bdf8;
-      color: #ffffff;
-      font-weight: 700;
-    }
-
-    .btn-primary:hover {
-      filter: brightness(1.08);
-      color: #ffffff;
-    }
-
-    .btn:disabled {
-      opacity: 0.55;
-      cursor: not-allowed;
-    }
+    .btn:hover { border-color: var(--accent-cyan); color: var(--text-primary); }
+    .btn.active-cyan { background: var(--accent-cyan-dim); border-color: var(--accent-cyan); color: var(--accent-cyan); }
+    .btn.active-emerald { background: var(--accent-emerald-dim); border-color: var(--accent-emerald); color: var(--accent-emerald); }
+    .btn.active-amber { background: var(--accent-amber-dim); border-color: var(--accent-amber); color: var(--accent-amber); }
+    .btn.active-purple { background: var(--accent-purple-dim); border-color: var(--accent-purple); color: var(--accent-purple); }
 
     /* ==========================================================================
-       SEÇÃO 1: DIAGRAMA SVG INTERATIVO DE TOPOLOGIA
+       01. MAPA DE CHAMADAS (CALL GRAPH INTERATIVO)
        ========================================================================== */
-    .diagram-frame {
-      background: var(--bg-panel);
-      border: 1px solid var(--border-subtle);
-      border-radius: var(--radius-md);
-      padding: 14px 10px;
-      margin-bottom: 18px;
-      overflow: hidden;
-    }
-
-    .topology-svg {
-      width: 100%;
-      height: auto;
-      display: block;
-    }
-
-    .svg-node-group {
-      cursor: pointer;
-      transition: transform 0.2s ease;
-    }
-
-    .svg-node-group:hover .node-box {
-      stroke: var(--accent-cyan);
-      stroke-width: 2.5;
-    }
-
-    .node-box {
-      transition: all 0.25s ease;
-    }
-
-    .flow-dash-forward {
-      stroke-dasharray: 8 6;
-      animation: dashMoveRight 1.1s linear infinite;
-    }
-
-    .flow-dash-reverse {
-      stroke-dasharray: 6 6;
-      animation: dashMoveLeft 1.1s linear infinite;
-    }
-
-    @keyframes dashMoveRight {
-      to { stroke-dashoffset: -28; }
-    }
-
-    @keyframes dashMoveLeft {
-      to { stroke-dashoffset: 28; }
-    }
-
-    .node-tabs {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 8px;
-      margin-bottom: 14px;
-    }
-
-    @media (min-width: 700px) {
-      .node-tabs {
-        grid-template-columns: repeat(4, 1fr);
-      }
-    }
-
-    .node-tab {
-      cursor: pointer;
-      background: var(--bg-panel);
-      border: 1px solid var(--border-subtle);
-      border-radius: var(--radius-md);
-      padding: 10px 12px;
-      text-align: left;
-      color: var(--text-secondary);
-      transition: all 0.2s ease;
-      min-height: 48px;
-    }
-
-    .node-tab strong {
-      display: block;
-      font-size: 0.86rem;
-      color: var(--text-primary);
-    }
-
-    .node-tab span {
-      font-family: var(--font-mono);
-      font-size: 0.74rem;
-      color: var(--text-muted);
-    }
-
-    .node-tab.selected {
-      border-color: var(--accent-cyan);
-      background: var(--accent-cyan-dim);
-    }
-
-    .node-tab.selected strong {
-      color: var(--accent-cyan);
-    }
-
-    .inspector-box {
-      background: var(--bg-panel);
-      border: 1px solid var(--border-strong);
-      border-radius: var(--radius-md);
-      padding: 16px 18px;
-    }
-
-    .inspector-header {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      justify-content: space-between;
-      gap: 8px;
-      margin-bottom: 10px;
-    }
-
-    .inspector-title {
-      font-size: 1.05rem;
-      font-weight: 700;
-      color: var(--accent-cyan);
-    }
-
-    .inspector-tag {
-      font-family: var(--font-mono);
-      font-size: 0.76rem;
-      padding: 4px 10px;
-      border-radius: 999px;
-      background: rgba(56, 189, 248, 0.12);
-      border: 1px solid rgba(56, 189, 248, 0.35);
-      color: var(--accent-cyan);
-    }
-
-    .inspector-list {
-      list-style: none;
-      display: grid;
-      gap: 8px;
-      font-size: 0.92rem;
-      color: var(--text-secondary);
-    }
-
-    .inspector-list li {
-      position: relative;
-      padding-left: 18px;
-    }
-
-    .inspector-list li::before {
-      content: "▸";
-      position: absolute;
-      left: 0;
-      color: var(--accent-emerald);
-      font-weight: bold;
-    }
-
-    /* ==========================================================================
-       SEÇÃO 2: PILHA DE CONFIABILIDADE + MINI-SIMULADOR
-       ========================================================================== */
-    .stages-grid {
+    .callgraph-grid {
       display: grid;
       grid-template-columns: 1fr;
-      gap: 14px;
-      margin-bottom: 20px;
+      gap: 16px;
     }
 
-    @media (min-width: 860px) {
-      .stages-grid {
-        grid-template-columns: repeat(3, 1fr);
-      }
+    @media (min-width: 900px) {
+      .callgraph-grid { grid-template-columns: 1.35fr 1fr; }
     }
 
-    .stage-card {
-      background: var(--bg-panel);
+    .tree-panel {
+      background: var(--bg-code);
       border: 1px solid var(--border-subtle);
       border-radius: var(--radius-md);
       padding: 16px;
+      font-family: var(--font-mono);
+      font-size: 0.81rem;
+      overflow-x: auto;
+    }
+
+    .tree-group-title {
+      font-size: 0.74rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      margin: 12px 0 8px;
+      padding-bottom: 4px;
+      border-bottom: 1px dashed rgba(148, 163, 184, 0.2);
+    }
+    .tree-group-title:first-child { margin-top: 0; }
+
+    .call-node {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 7px 10px;
+      margin: 4px 0;
+      border-radius: 6px;
+      border: 1px solid transparent;
+      cursor: pointer;
+      transition: all 0.16s ease;
+      color: var(--text-secondary);
+    }
+
+    .call-node:hover {
+      background: rgba(56, 189, 248, 0.08);
+      border-color: rgba(56, 189, 248, 0.25);
+      color: var(--text-primary);
+    }
+
+    .call-node.selected {
+      background: var(--accent-cyan-dim);
+      border-color: var(--accent-cyan);
+      color: var(--text-primary);
+    }
+
+    .call-node.hidden-role {
+      opacity: 0.28;
+    }
+
+    .call-indent-1 { margin-left: 18px; border-left: 2px solid rgba(56, 189, 248, 0.25); }
+    .call-indent-2 { margin-left: 36px; border-left: 2px solid rgba(16, 185, 129, 0.25); }
+    .call-indent-3 { margin-left: 54px; border-left: 2px solid rgba(245, 158, 11, 0.25); }
+
+    .role-pill {
+      font-size: 0.68rem;
+      padding: 2px 7px;
+      border-radius: 999px;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+    .rp-all { background: rgba(148, 163, 184, 0.16); color: #cbd5e1; }
+    .rp-gw  { background: var(--accent-amber-dim); color: #fcd34d; }
+    .rp-n1  { background: var(--accent-cyan-dim); color: #7dd3fc; }
+    .rp-n2  { background: var(--accent-emerald-dim); color: #6ee7b7; }
+    .rp-py  { background: var(--accent-purple-dim); color: #c4b5fd; }
+
+    .detail-panel {
+      background: var(--bg-panel);
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius-md);
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .detail-header {
+      border-bottom: 1px solid var(--border-subtle);
+      padding-bottom: 10px;
+    }
+
+    .detail-sig {
+      font-family: var(--font-mono);
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--accent-cyan);
+      word-break: break-word;
+    }
+
+    .detail-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 6px;
+    }
+
+    .meta-tag {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      padding: 2px 8px;
+      border-radius: 5px;
+      background: rgba(30, 41, 59, 0.9);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-secondary);
+    }
+
+    .code-snippet {
+      background: var(--bg-code);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      padding: 12px;
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      line-height: 1.5;
+      color: #e2e8f0;
+      overflow-x: auto;
+      white-space: pre;
+    }
+
+    .kw { color: #c084fc; }
+    .fn { color: #38bdf8; }
+    .num { color: #fbbf24; }
+    .str { color: #34d399; }
+    .cmt { color: #64748b; font-style: italic; }
+
+    /* ==========================================================================
+       02. ANATOMIA DAS VARIÁVEIS CRÍTICAS & TIPOS DE DADOS
+       ========================================================================== */
+    .table-wrap {
+      overflow-x: auto;
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      background: var(--bg-panel);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.87rem;
+      text-align: left;
+    }
+
+    th, td {
+      padding: 11px 14px;
+      border-bottom: 1px solid var(--border-subtle);
+      vertical-align: top;
+    }
+
+    th {
+      background: rgba(30, 41, 59, 0.85);
+      color: var(--text-primary);
+      font-weight: 700;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: rgba(56, 189, 248, 0.04); }
+
+    .var-name {
+      font-family: var(--font-mono);
+      font-weight: 700;
+      color: var(--accent-cyan);
+      white-space: nowrap;
+    }
+
+    .var-type {
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      color: var(--accent-amber);
+      white-space: nowrap;
+    }
+
+    /* ==========================================================================
+       03. BIBLIOTECA RF24 & REGISTRADORES DO CHIP nRF24L01+
+       ========================================================================== */
+    .rf24-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 14px;
+    }
+
+    @media (min-width: 768px) {
+      .rf24-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    .rf24-card {
+      background: var(--bg-panel);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 16px 18px;
       display: flex;
       flex-direction: column;
       gap: 8px;
     }
 
-    .stage-num {
-      display: inline-flex;
+    .rf24-card-head {
+      display: flex;
       align-items: center;
-      gap: 6px;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .rf24-api {
       font-family: var(--font-mono);
-      font-size: 0.75rem;
+      font-size: 0.9rem;
       font-weight: 700;
-      padding: 3px 9px;
+      color: var(--accent-emerald);
+    }
+
+    .reg-badge {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      padding: 2px 8px;
       border-radius: 6px;
-      width: fit-content;
+      background: var(--accent-purple-dim);
+      border: 1px solid rgba(167, 139, 250, 0.35);
+      color: #ddd6fe;
     }
 
-    .stage-num.cyan { background: var(--accent-cyan-dim); color: var(--accent-cyan); }
-    .stage-num.emerald { background: var(--accent-emerald-dim); color: var(--accent-emerald); }
-    .stage-num.amber { background: var(--accent-amber-dim); color: var(--accent-amber); }
-
-    .stage-card h3 {
-      font-size: 1rem;
-      color: var(--text-primary);
-    }
-
-    .stage-card p {
+    .rf24-card p {
       font-size: 0.89rem;
       color: var(--text-secondary);
     }
 
-    .callout-maca {
-      background: linear-gradient(90deg, rgba(245, 158, 11, 0.12), rgba(30, 41, 59, 0.6));
-      border-left: 4px solid var(--accent-amber);
-      border-top: 1px solid rgba(245, 158, 11, 0.25);
-      border-right: 1px solid rgba(245, 158, 11, 0.25);
-      border-bottom: 1px solid rgba(245, 158, 11, 0.25);
-      border-radius: var(--radius-md);
-      padding: 14px 16px;
-      margin-bottom: 22px;
-      font-size: 0.9rem;
-      color: var(--text-secondary);
-    }
-
-    .callout-maca strong {
-      color: #fcd34d;
-    }
-
-    /* Simulador Interativo */
-    .simulator-box {
-      background: var(--bg-panel);
-      border: 1px solid var(--border-strong);
-      border-radius: var(--radius-md);
-      padding: 18px;
-    }
-
-    .sim-header {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      margin-bottom: 16px;
-    }
-
-    .sim-title {
-      font-size: 1.02rem;
-      font-weight: 700;
-      color: var(--text-primary);
-    }
-
-    .sim-track {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 10px;
-      margin-bottom: 16px;
-    }
-
-    @media (min-width: 680px) {
-      .sim-track {
-        grid-template-columns: repeat(4, 1fr);
-      }
-    }
-
-    .sim-step {
-      background: var(--bg-surface);
-      border: 1px solid var(--border-subtle);
-      border-radius: var(--radius-sm);
-      padding: 12px;
-      text-align: center;
-      transition: all 0.25s ease;
-    }
-
-    .sim-step .step-label {
-      font-family: var(--font-mono);
-      font-size: 0.74rem;
-      color: var(--text-muted);
-      margin-bottom: 4px;
-    }
-
-    .sim-step .step-status {
-      font-size: 0.86rem;
-      font-weight: 700;
-      color: var(--text-secondary);
-    }
-
-    .sim-step.step-active {
-      border-color: var(--accent-cyan);
-      background: var(--accent-cyan-dim);
-      transform: translateY(-2px);
-    }
-    .sim-step.step-active .step-status { color: var(--accent-cyan); }
-
-    .sim-step.step-warn {
-      border-color: var(--accent-amber);
-      background: var(--accent-amber-dim);
-    }
-    .sim-step.step-warn .step-status { color: var(--accent-amber); }
-
-    .sim-step.step-ok {
-      border-color: var(--accent-emerald);
-      background: var(--accent-emerald-dim);
-    }
-    .sim-step.step-ok .step-status { color: var(--accent-emerald); }
-
-    .sim-metrics {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 10px;
-      margin-bottom: 14px;
-    }
-
-    @media (min-width: 640px) {
-      .sim-metrics {
-        grid-template-columns: repeat(4, 1fr);
-      }
-    }
-
-    .metric-pill {
-      background: rgba(30, 41, 59, 0.75);
-      border: 1px solid var(--border-subtle);
-      border-radius: var(--radius-sm);
-      padding: 10px 12px;
-    }
-
-    .metric-pill span {
-      display: block;
-      font-size: 0.75rem;
-      color: var(--text-muted);
-    }
-
-    .metric-pill strong {
-      font-family: var(--font-mono);
-      font-size: 1.05rem;
-      color: var(--text-primary);
-    }
-
-    .sim-console {
-      background: #060a14;
-      border: 1px solid var(--border-subtle);
-      border-radius: var(--radius-sm);
-      padding: 12px;
-      font-family: var(--font-mono);
-      font-size: 0.78rem;
-      line-height: 1.55;
-      max-height: 170px;
-      overflow-y: auto;
-      color: var(--text-secondary);
-    }
-
-    .log-cyan { color: var(--accent-cyan); }
-    .log-amber { color: var(--accent-amber); }
-    .log-emerald { color: var(--accent-emerald); }
-    .log-red { color: #f87171; }
-
     /* ==========================================================================
-       SEÇÃO 3: ESPECTRO 2.4 GHZ & COEXISTÊNCIA WI-FI
+       04. TIPOS DE DADOS, PACOTES (15 BYTES) & LAYOUT DE MEMÓRIA
        ========================================================================== */
-    .spectrum-info-grid {
+    .memory-map {
       display: grid;
-      grid-template-columns: 1fr;
-      gap: 14px;
-      margin-top: 16px;
-    }
-
-    @media (min-width: 768px) {
-      .spectrum-info-grid {
-        grid-template-columns: 1.2fr 1fr;
-      }
-    }
-
-    .channel-detail-card,
-    .sync-card {
-      background: var(--bg-panel);
-      border: 1px solid var(--border-subtle);
-      border-radius: var(--radius-md);
-      padding: 16px;
-    }
-
-    .channel-detail-card h3,
-    .sync-card h3 {
-      font-size: 0.98rem;
-      margin-bottom: 8px;
-      color: var(--text-primary);
-    }
-
-    .freq-readout {
-      font-family: var(--font-mono);
-      font-size: 1.3rem;
-      font-weight: 800;
-      margin-bottom: 6px;
-    }
-
-    /* ==========================================================================
-       SEÇÃO 4: ANATOMIA DO QUADRO BINÁRIO & RESILIÊNCIA
-       ========================================================================== */
-    .phy-frame {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
+      grid-template-columns: repeat(3, 1fr);
       gap: 6px;
       margin-bottom: 16px;
     }
 
-    @media (min-width: 720px) {
-      .phy-frame {
-        grid-template-columns: 1fr 1.5fr 1fr 2.4fr 1.1fr;
-      }
+    @media (min-width: 640px) {
+      .memory-map { grid-template-columns: repeat(5, 1fr); }
     }
 
-    .phy-block {
-      background: var(--bg-panel);
-      border: 1px solid var(--border-subtle);
-      border-radius: var(--radius-sm);
-      padding: 10px 8px;
-      text-align: center;
-      font-size: 0.78rem;
+    @media (min-width: 960px) {
+      .memory-map { grid-template-columns: repeat(11, 1fr); }
     }
 
-    .phy-block strong {
-      display: block;
-      font-family: var(--font-mono);
-      color: var(--text-primary);
-      font-size: 0.82rem;
-    }
-
-    .phy-block span {
-      color: var(--text-muted);
-      font-size: 0.72rem;
-    }
-
-    .phy-block.highlight-payload {
-      border-color: var(--accent-cyan);
-      background: var(--accent-cyan-dim);
-    }
-
-    .phy-block.highlight-payload strong {
-      color: var(--accent-cyan);
-    }
-
-    .payload-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 8px;
-      margin-bottom: 14px;
-    }
-
-    @media (min-width: 560px) {
-      .payload-grid {
-        grid-template-columns: repeat(4, 1fr);
-      }
-    }
-
-    @media (min-width: 900px) {
-      .payload-grid {
-        grid-template-columns: repeat(6, 1fr);
-      }
-    }
-
-    .byte-cell {
+    .mem-byte {
       cursor: pointer;
       background: var(--bg-panel);
       border: 1px solid var(--border-subtle);
       border-radius: var(--radius-sm);
-      padding: 10px 8px;
+      padding: 9px 6px;
       text-align: center;
       transition: all 0.18s ease;
     }
 
-    .byte-cell:hover {
-      border-color: var(--accent-cyan);
-      transform: translateY(-2px);
-    }
-
-    .byte-cell.selected {
+    .mem-byte:hover { border-color: var(--accent-cyan); transform: translateY(-2px); }
+    .mem-byte.active {
       border-color: var(--accent-emerald);
       background: var(--accent-emerald-dim);
-      box-shadow: 0 0 0 1px rgba(16, 185, 129, 0.3);
+      box-shadow: 0 0 0 1px rgba(16, 185, 129, 0.35);
     }
 
-    .byte-cell .b-name {
+    .mem-offset {
       display: block;
       font-family: var(--font-mono);
-      font-size: 0.8rem;
+      font-size: 0.68rem;
+      color: var(--text-muted);
+    }
+
+    .mem-field {
+      display: block;
+      font-family: var(--font-mono);
+      font-size: 0.76rem;
       font-weight: 700;
       color: var(--text-primary);
+      margin: 2px 0;
     }
 
-    .byte-cell.selected .b-name {
-      color: var(--accent-emerald);
-    }
+    .mem-byte.active .mem-field { color: var(--accent-emerald); }
 
-    .byte-cell .b-size {
-      display: inline-block;
-      margin-top: 3px;
+    .mem-dtype {
+      display: block;
       font-family: var(--font-mono);
-      font-size: 0.7rem;
-      padding: 1px 6px;
-      border-radius: 4px;
-      background: rgba(148, 163, 184, 0.14);
-      color: var(--text-secondary);
+      font-size: 0.67rem;
+      color: var(--accent-amber);
     }
 
-    .resilience-grid {
+    .msg-types-grid {
       display: grid;
       grid-template-columns: 1fr;
-      gap: 14px;
-      margin-top: 20px;
+      gap: 12px;
+      margin-top: 18px;
     }
 
     @media (min-width: 768px) {
-      .resilience-grid {
-        grid-template-columns: repeat(2, 1fr);
-      }
+      .msg-types-grid { grid-template-columns: repeat(2, 1fr); }
     }
 
-    .res-card {
+    .msg-card {
       background: var(--bg-panel);
       border: 1px solid var(--border-subtle);
       border-radius: var(--radius-md);
-      padding: 16px;
+      padding: 14px 16px;
     }
 
-    .res-card h3 {
-      font-size: 0.98rem;
-      color: var(--accent-emerald);
-      margin-bottom: 6px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
+    .msg-card strong {
+      display: block;
+      font-family: var(--font-mono);
+      font-size: 0.88rem;
+      margin-bottom: 4px;
     }
 
-    .res-card p {
-      font-size: 0.89rem;
+    .msg-card p {
+      font-size: 0.87rem;
       color: var(--text-secondary);
     }
 
     /* ==========================================================================
-       RODAPÉ INSTITUCIONAL
+       05. IMPLEMENTAÇÃO DOS PROTOCOLOS (CSMA/CA, ARQ, BEACON & AUTO-SCAN)
+       ========================================================================== */
+    .proto-blocks {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+
+    .proto-item {
+      background: var(--bg-panel);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 18px;
+    }
+
+    .proto-item h3 {
+      font-size: 1.05rem;
+      color: var(--text-primary);
+      margin-bottom: 8px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .proto-item p {
+      font-size: 0.91rem;
+      color: var(--text-secondary);
+      margin-bottom: 12px;
+    }
+
+    /* ==========================================================================
+       06. CURIOSIDADES & ENGENHARIA PROFUNDA DO PROJETO
+       ========================================================================== */
+    .curiosity-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 14px;
+    }
+
+    @media (min-width: 768px) {
+      .curiosity-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    .curiosity-card {
+      background: linear-gradient(160deg, rgba(19, 28, 49, 0.95), rgba(8, 13, 26, 0.98));
+      border: 1px solid var(--border-subtle);
+      border-left: 4px solid var(--accent-cyan);
+      border-radius: var(--radius-md);
+      padding: 16px 18px;
+    }
+
+    .curiosity-card.amber { border-left-color: var(--accent-amber); }
+    .curiosity-card.emerald { border-left-color: var(--accent-emerald); }
+    .curiosity-card.purple { border-left-color: var(--accent-purple); }
+    .curiosity-card.rose { border-left-color: var(--accent-rose); }
+
+    .curiosity-num {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+    }
+
+    .curiosity-card h3 {
+      font-size: 0.98rem;
+      color: var(--text-primary);
+      margin-bottom: 6px;
+    }
+
+    .curiosity-card p {
+      font-size: 0.88rem;
+      color: var(--text-secondary);
+    }
+
+    /* ==========================================================================
+       RODAPÉ
        ========================================================================== */
     footer {
       border-top: 1px solid var(--border-subtle);
-      background: rgba(11, 17, 32, 0.85);
-      padding: 24px 0 32px;
+      background: rgba(8, 13, 26, 0.9);
+      padding: 26px 0 34px;
       text-align: center;
       color: var(--text-muted);
       font-size: 0.85rem;
@@ -891,20 +742,11 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 10px;
-    }
-
-    .footer-inst {
-      color: var(--text-secondary);
-      font-weight: 600;
-    }
-
-    .footer-inst span {
-      color: var(--utfpr-yellow);
+      gap: 8px;
     }
 
     .back-top {
-      margin-top: 6px;
+      margin-top: 8px;
       display: inline-flex;
       align-items: center;
       gap: 6px;
@@ -912,7 +754,7 @@
       color: var(--accent-cyan);
       font-weight: 600;
       font-size: 0.84rem;
-      padding: 8px 14px;
+      padding: 8px 15px;
       border-radius: 999px;
       border: 1px solid rgba(56, 189, 248, 0.35);
       background: var(--accent-cyan-dim);
@@ -922,30 +764,20 @@
 <body id="topo">
 
   <!-- ========================================================================
-       CABEÇALHO INSTITUCIONAL UTFPR + HERO
+       CABEÇALHO INSTITUCIONAL & MÉTRICAS DE BAIXO NÍVEL
        ======================================================================== -->
   <header class="hero">
     <div class="container">
       <div class="inst-bar">
-        <div class="utfpr-logo-wrap">
-          <!-- Reprodução vetorial SVG fiel da marca institucional da UTFPR -->
-          <svg class="utfpr-svg" viewBox="0 0 460 112" role="img" aria-label="Logo UTFPR - Universidade Tecnológica Federal do Paraná">
-            <!-- Letra U -->
-            <path d="M12 10 H36 V64 C36 74 42 79 52 79 C62 79 68 74 68 64 V10 H92 V64 C92 86 77 98 52 98 C27 98 12 86 12 64 Z" fill="#f8fafc"/>
-            <!-- Letra T (barra superior larga + haste vertical) -->
-            <path d="M104 10 H248 V28 H156 V96 H132 V28 H104 Z" fill="#f8fafc"/>
-            <!-- Detalhe geométrico característico em amarelo institucional UTFPR (#ffcc00) -->
-            <path d="M166 36 H248 V54 H184 V96 H166 Z" fill="#ffcc00"/>
-            <!-- Canto interno branco da letra F -->
-            <path d="M194 62 H248 V78 H212 V96 H194 Z" fill="#f8fafc"/>
-            <!-- Letra P -->
-            <path d="M266 36 H308 C326 36 337 46 337 61 C337 76 326 86 308 86 H286 V96 H266 Z M286 52 V70 H305 C312 70 317 66 317 61 C317 56 312 52 305 52 Z" fill="#f8fafc"/>
-            <!-- Letra R -->
-            <path d="M350 36 H394 C412 36 423 45 423 60 C423 71 416 79 405 82 L426 96 H402 L384 84 H370 V96 H350 Z M370 52 V69 H391 C398 69 403 65 403 60 C403 55 398 52 391 52 Z" fill="#f8fafc"/>
-            <!-- Legenda institucional inferior -->
-            <text x="230" y="109" text-anchor="middle" fill="#cbd5e1" font-family="Arial, Helvetica, sans-serif" font-size="12.2" font-weight="700" letter-spacing="1.35">UNIVERSIDADE TECNOLÓGICA FEDERAL DO PARANÁ</text>
-          </svg>
-        </div>
+        <svg class="utfpr-svg" viewBox="0 0 460 112" role="img" aria-label="Logo UTFPR">
+          <path d="M12 10 H36 V64 C36 74 42 79 52 79 C62 79 68 74 68 64 V10 H92 V64 C92 86 77 98 52 98 C27 98 12 86 12 64 Z" fill="#f8fafc"/>
+          <path d="M104 10 H248 V28 H156 V96 H132 V28 H104 Z" fill="#f8fafc"/>
+          <path d="M166 36 H248 V54 H184 V96 H166 Z" fill="#ffcc00"/>
+          <path d="M194 62 H248 V78 H212 V96 H194 Z" fill="#f8fafc"/>
+          <path d="M266 36 H308 C326 36 337 46 337 61 C337 76 326 86 308 86 H286 V96 H266 Z M286 52 V70 H305 C312 70 317 66 317 61 C317 56 312 52 305 52 Z" fill="#f8fafc"/>
+          <path d="M350 36 H394 C412 36 423 45 423 60 C423 71 416 79 405 82 L426 96 H402 L384 84 H370 V96 H350 Z M370 52 V69 H391 C398 69 403 65 403 60 C403 55 398 52 391 52 Z" fill="#f8fafc"/>
+          <text x="230" y="109" text-anchor="middle" fill="#cbd5e1" font-family="Arial, Helvetica, sans-serif" font-size="12.2" font-weight="700" letter-spacing="1.35">UNIVERSIDADE TECNOLÓGICA FEDERAL DO PARANÁ</text>
+        </svg>
 
         <div class="course-pill">
           <span class="dot"></span>
@@ -953,30 +785,56 @@
         </div>
       </div>
 
+      <div class="hero-eyebrow">Aprofundamento Técnico • Arquitetura de Software &amp; Camada Física</div>
       <h1 class="hero-title">
-        Rede IoT Sem Fio Híbrida <span>(M2M + Estrela)</span> com Arduino Nano &amp; nRF24L01+
+        Anatomia Interna do Firmware <span>C++</span>, Driver <span>RF24</span> e Protocolos de Enlace
       </h1>
       <p class="hero-subtitle">
-        Arquitetura embarcada de telemetria e controle autônomo em dois saltos na banda ISM de <strong>2,4 GHz</strong>, projetada com escuta física de portadora (<strong>CSMA/CA</strong>), retransmissão confiável (<strong>ARQ Stop-and-Wait</strong>), verificação <strong>CRC-16</strong> e supervisão web multi-porta resiliente a interferências Wi-Fi.
+        Documentação de engenharia complementar ao <code>README.md</code>: mapa completo de chamadas entre funções, layout de memória dos 15 bytes no ATmega328P, manipulação direta de registradores do nRF24L01+, implementação real de CSMA/CA + ARQ e bastidores físicos da bancada.
       </p>
 
-      <div class="hero-badges">
-        <span class="tech-badge cyan">2,4 GHz ISM • 250 kbps</span>
-        <span class="tech-badge emerald">CSMA/CA (testRPD &gt; -64 dBm)</span>
-        <span class="tech-badge amber">ARQ Stop-and-Wait + Backoff</span>
-        <span class="tech-badge">Payload Binário 15 Bytes • CRC-16</span>
+      <div class="hero-kpis">
+        <div class="kpi-card">
+          <span>Quadro no Ar (PHY)</span>
+          <strong>193 bits</strong>
+          <small>772 µs @ 250 kbps</small>
+        </div>
+        <div class="kpi-card">
+          <span>Payload Útil</span>
+          <strong>15 Bytes</strong>
+          <small>17 B livres no FIFO (32 B)</small>
+        </div>
+        <div class="kpi-card">
+          <span>Sensibilidade RX</span>
+          <strong>-94 dBm</strong>
+          <small>Modulação GFSK 250 kbps</small>
+        </div>
+        <div class="kpi-card">
+          <span>Estabilização PLL</span>
+          <strong>130 µs</strong>
+          <small>Transição Standby-I → TX</small>
+        </div>
+        <div class="kpi-card">
+          <span>Varredura Auto-Scan</span>
+          <strong>3,15 s</strong>
+          <small>126 canais × 25 ms/ch</small>
+        </div>
       </div>
     </div>
   </header>
 
-  <!-- Barra de navegação rápida -->
-  <nav class="quick-nav" aria-label="Navegação entre seções">
+  <!-- ========================================================================
+       BARRA DE NAVEGAÇÃO RÁPIDA
+       ======================================================================== -->
+  <nav class="quick-nav" aria-label="Navegação das seções técnicas">
     <div class="container">
       <div class="nav-scroll">
-        <a class="nav-link" href="#topologia">1. Topologia Híbrida</a>
-        <a class="nav-link" href="#confiabilidade">2. CSMA/CA &amp; ARQ</a>
-        <a class="nav-link" href="#espectro">3. Espectro Wi-Fi 2,4 GHz</a>
-        <a class="nav-link" href="#quadro">4. Quadro 15B &amp; Resiliência</a>
+        <a class="nav-link" href="#call-graph">1. Mapa de Chamadas</a>
+        <a class="nav-link" href="#variaveis">2. Variáveis Críticas</a>
+        <a class="nav-link" href="#biblioteca-rf24">3. Biblioteca RF24 &amp; Chip</a>
+        <a class="nav-link" href="#tipos-pacotes">4. Tipos de Dados &amp; Pacotes</a>
+        <a class="nav-link" href="#protocolos-codigo">5. Implementação dos Protocolos</a>
+        <a class="nav-link" href="#curiosidades">6. Bastidores &amp; Curiosidades</a>
       </div>
     </div>
   </nav>
@@ -984,428 +842,431 @@
   <main class="container">
 
     <!-- ======================================================================
-         SEÇÃO 1: VISÃO GERAL & TOPOLOGIA HÍBRIDA EM DOIS SALTOS
+         SEÇÃO 1: MAPA DE CHAMADAS E DETALHAMENTO DAS FUNÇÕES
          ====================================================================== -->
-    <section id="topologia" class="section-card">
+    <section id="call-graph" class="section-card">
       <div class="section-header">
-        <span class="section-kicker">01 • Arquitetura &amp; Roteamento em Dois Saltos</span>
-        <h2 class="section-title">Topologia Híbrida: Malha Local M2M + Supervisão em Estrela</h2>
+        <span class="section-kicker">01 • Fluxo de Execução &amp; Arquitetura de Funções</span>
+        <h2 class="section-title">Mapa de Chamadas (<code>setup()</code>, <code>loop()</code> e Backend Python)</h2>
         <p class="section-desc">
-          Alterne entre os fluxos de operação abaixo e toque em qualquer nó do diagrama para inspecionar sua pinagem, potência de rádio e papel no protocolo.
+          Filtre por papel da placa ou clique em qualquer função da árvore abaixo para inspecionar sua assinatura, temporizações internas e trecho real de implementação.
         </p>
       </div>
 
-      <!-- Alternador de fluxo animado -->
-      <div class="btn-group" role="group" aria-label="Alternar fluxo da animação">
-        <button type="button" id="btnFlowM2M" class="btn active-cyan" onclick="setTopologyMode('m2m')">
-          ⚡ Modo Autônomo M2M (Nó 1 → Nó 2 → Gateway)
-        </button>
-        <button type="button" id="btnFlowBeacon" class="btn" onclick="setTopologyMode('beacon')">
-          📡 Controle Manual / Broadcast (Gateway → Beacons)
-        </button>
+      <div class="btn-group" role="group" aria-label="Filtrar funções por papel">
+        <button type="button" id="flt-all" class="btn active-cyan" onclick="filterCallRole('all')">Todas as Funções</button>
+        <button type="button" id="flt-gw" class="btn" onclick="filterCallRole('gw')">Gateway (ID 0)</button>
+        <button type="button" id="flt-n1" class="btn" onclick="filterCallRole('n1')">Nó 1 — Sensor (ID 1)</button>
+        <button type="button" id="flt-n2" class="btn" onclick="filterCallRole('n2')">Nó 2 — Atuador (ID 2)</button>
+        <button type="button" id="flt-py" class="btn" onclick="filterCallRole('py')">Backend Python (script.py)</button>
       </div>
 
-      <!-- Diagrama Vetorial SVG Interativo -->
-      <div class="diagram-frame">
-        <svg class="topology-svg" viewBox="0 0 920 340" role="img" aria-label="Diagrama interativo dos 3 nós Arduino Nano com nRF24L01+ e PC">
-          <defs>
-            <marker id="arrowCyan" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
-              <path d="M0,1 L7,4 L0,7 Z" fill="#38bdf8"/>
-            </marker>
-            <marker id="arrowEmerald" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
-              <path d="M0,1 L7,4 L0,7 Z" fill="#10b981"/>
-            </marker>
-            <marker id="arrowAmber" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
-              <path d="M0,1 L7,4 L0,7 Z" fill="#f59e0b"/>
-            </marker>
-          </defs>
-
-          <!-- Fundo sutil de grade -->
-          <rect x="4" y="4" width="912" height="332" rx="12" fill="#0b1120" stroke="rgba(148,163,184,0.14)"/>
-
-          <!-- ==================== NÓ 1: SENSOR ==================== -->
-          <g class="svg-node-group" onclick="selectNode(1)">
-            <rect id="box-node-1" class="node-box" x="26" y="42" width="180" height="176" rx="14" fill="#1e293b" stroke="#38bdf8" stroke-width="2.5"/>
-            <!-- Módulo RF -->
-            <rect x="76" y="54" width="80" height="24" rx="5" fill="#0f172a" stroke="#38bdf8" stroke-width="1.2"/>
-            <text x="116" y="70" text-anchor="middle" fill="#38bdf8" font-family="monospace" font-size="11" font-weight="700">nRF24 PA_LOW</text>
-            <text x="116" y="102" text-anchor="middle" fill="#f8fafc" font-family="sans-serif" font-size="15" font-weight="700">Nó 1 — Sensor</text>
-            <text x="116" y="121" text-anchor="middle" fill="#94a3b8" font-family="monospace" font-size="12">MEU_ID = 1</text>
-            <rect x="44" y="135" width="144" height="30" rx="6" fill="#0f172a"/>
-            <text x="116" y="154" text-anchor="middle" fill="#cbd5e1" font-family="monospace" font-size="11.5">Pino A0 (0..1023)</text>
-            <text x="116" y="185" text-anchor="middle" fill="#38bdf8" font-family="sans-serif" font-size="11" font-weight="600">Ciclo ADC: 1200 ms</text>
-            <text x="116" y="203" text-anchor="middle" fill="#64748b" font-family="sans-serif" font-size="10">Toque para inspecionar</text>
-          </g>
-
-          <!-- ==================== NÓ 2: ATUADOR ==================== -->
-          <g class="svg-node-group" onclick="selectNode(2)">
-            <rect id="box-node-2" class="node-box" x="274" y="42" width="192" height="176" rx="14" fill="#1e293b" stroke="rgba(148,163,184,0.3)" stroke-width="1.5"/>
-            <rect x="330" y="54" width="80" height="24" rx="5" fill="#0f172a" stroke="#10b981" stroke-width="1.2"/>
-            <text x="370" y="70" text-anchor="middle" fill="#10b981" font-family="monospace" font-size="11" font-weight="700">nRF24 PA_LOW</text>
-            <text x="370" y="102" text-anchor="middle" fill="#f8fafc" font-family="sans-serif" font-size="15" font-weight="700">Nó 2 — Atuador</text>
-            <text x="370" y="121" text-anchor="middle" fill="#94a3b8" font-family="monospace" font-size="12">MEU_ID = 2</text>
-            <rect x="292" y="135" width="156" height="30" rx="6" fill="#0f172a"/>
-            <text x="370" y="154" text-anchor="middle" fill="#10b981" font-family="monospace" font-size="11.5">Saída D4 (Limiar 500)</text>
-            <text x="370" y="185" text-anchor="middle" fill="#cbd5e1" font-family="sans-serif" font-size="11">Janela guarda: 15 ms</text>
-            <text x="370" y="203" text-anchor="middle" fill="#64748b" font-family="sans-serif" font-size="10">Toque para inspecionar</text>
-          </g>
-
-          <!-- ==================== NÓ 0: GATEWAY ==================== -->
-          <g class="svg-node-group" onclick="selectNode(0)">
-            <rect id="box-node-0" class="node-box" x="534" y="42" width="186" height="176" rx="14" fill="#1e293b" stroke="rgba(148,163,184,0.3)" stroke-width="1.5"/>
-            <!-- Antena externa PA+LNA -->
-            <line x1="704" y1="68" x2="704" y2="22" stroke="#f59e0b" stroke-width="4" stroke-linecap="round"/>
-            <circle cx="704" cy="20" r="4" fill="#ffcc00"/>
-            <rect x="577" y="54" width="100" height="24" rx="5" fill="#0f172a" stroke="#f59e0b" stroke-width="1.2"/>
-            <text x="627" y="70" text-anchor="middle" fill="#f59e0b" font-family="monospace" font-size="10.5" font-weight="700">PA+LNA (PA_MIN)</text>
-            <text x="627" y="102" text-anchor="middle" fill="#f8fafc" font-family="sans-serif" font-size="15" font-weight="700">Gateway (Nó 0)</text>
-            <text x="627" y="121" text-anchor="middle" fill="#94a3b8" font-family="monospace" font-size="12">MEU_ID = 0</text>
-            <rect x="552" y="135" width="150" height="30" rx="6" fill="#0f172a"/>
-            <text x="627" y="154" text-anchor="middle" fill="#f59e0b" font-family="monospace" font-size="11.5">Ponte RF ↔ USB</text>
-            <text x="627" y="185" text-anchor="middle" fill="#cbd5e1" font-family="sans-serif" font-size="11">Broadcast: Destino 255</text>
-            <text x="627" y="203" text-anchor="middle" fill="#64748b" font-family="sans-serif" font-size="10">Toque para inspecionar</text>
-          </g>
-
-          <!-- ==================== PC / INTERFACE WEB ==================== -->
-          <g class="svg-node-group" onclick="selectNode(3)">
-            <rect id="box-node-3" class="node-box" x="768" y="58" width="130" height="144" rx="14" fill="#1e293b" stroke="rgba(148,163,184,0.3)" stroke-width="1.5"/>
-            <rect x="784" y="74" width="98" height="54" rx="6" fill="#0f172a" stroke="#38bdf8" stroke-width="1.2"/>
-            <text x="833" y="98" text-anchor="middle" fill="#38bdf8" font-family="monospace" font-size="11" font-weight="700">script.py</text>
-            <text x="833" y="115" text-anchor="middle" fill="#10b981" font-family="monospace" font-size="10">JSON 115200</text>
-            <text x="833" y="152" text-anchor="middle" fill="#f8fafc" font-family="sans-serif" font-size="13.5" font-weight="700">PC / Web UI</text>
-            <text x="833" y="170" text-anchor="middle" fill="#94a3b8" font-family="sans-serif" font-size="10.5">Multi-Porta + DTR</text>
-            <text x="833" y="188" text-anchor="middle" fill="#64748b" font-family="sans-serif" font-size="9.5">Inspecionar</text>
-          </g>
-
-          <!-- ==================== SETAS FLUXO M2M + TELEMETRIA ==================== -->
-          <g id="svgLayerM2M">
-            <!-- 1. MSG_DADOS_M2M -->
-            <line x1="210" y1="104" x2="266" y2="104" stroke="#38bdf8" stroke-width="2.5" class="flow-dash-forward" marker-end="url(#arrowCyan)"/>
-            <text x="240" y="93" text-anchor="middle" fill="#38bdf8" font-family="monospace" font-size="9.5" font-weight="700">1.M2M</text>
-
-            <!-- 2. MSG_ACK (Nó 2 -> Nó 1) -->
-            <line x1="268" y1="146" x2="212" y2="146" stroke="#10b981" stroke-width="2" class="flow-dash-reverse" marker-end="url(#arrowEmerald)"/>
-            <text x="240" y="162" text-anchor="middle" fill="#10b981" font-family="monospace" font-size="9.5" font-weight="700">2.ACK</text>
-
-            <!-- 3. MSG_TELEMETRIA -->
-            <line x1="470" y1="104" x2="526" y2="104" stroke="#38bdf8" stroke-width="2.5" class="flow-dash-forward" marker-end="url(#arrowCyan)"/>
-            <text x="500" y="93" text-anchor="middle" fill="#38bdf8" font-family="monospace" font-size="9.5" font-weight="700">3.TEL</text>
-
-            <!-- 4. MSG_ACK (GW -> Nó 2) -->
-            <line x1="528" y1="146" x2="472" y2="146" stroke="#10b981" stroke-width="2" class="flow-dash-reverse" marker-end="url(#arrowEmerald)"/>
-            <text x="500" y="162" text-anchor="middle" fill="#10b981" font-family="monospace" font-size="9.5" font-weight="700">4.ACK</text>
-
-            <!-- 5. USB JSON Serial -->
-            <line x1="722" y1="126" x2="762" y2="126" stroke="#38bdf8" stroke-width="2.5" class="flow-dash-forward" marker-end="url(#arrowCyan)"/>
-            <text x="744" y="114" text-anchor="middle" fill="#cbd5e1" font-family="monospace" font-size="9">JSON</text>
-          </g>
-
-          <!-- ==================== BARRAMENTO BROADCAST MSG_BEACON ==================== -->
-          <g id="svgLayerBeacon">
-            <path d="M 627 222 L 627 284 L 116 284 L 116 226" fill="none" stroke="#f59e0b" stroke-width="2.2" stroke-dasharray="7 5" marker-end="url(#arrowAmber)"/>
-            <path d="M 370 284 L 370 226" fill="none" stroke="#f59e0b" stroke-width="2.2" stroke-dasharray="7 5" marker-end="url(#arrowAmber)"/>
-            <!-- Comando PC -> Gateway -->
-            <path id="pcCmdArrow" d="M 764 156 L 724 156" fill="none" stroke="#f59e0b" stroke-width="2.4" opacity="0.45" marker-end="url(#arrowAmber)"/>
-            <rect x="226" y="268" width="290" height="28" rx="14" fill="#1e293b" stroke="#f59e0b" stroke-width="1.3"/>
-            <text x="371" y="286" text-anchor="middle" fill="#fcd34d" font-family="monospace" font-size="11" font-weight="700">MSG_BEACON (Broadcast 255): Canal • Modo • Limiar</text>
-          </g>
-        </svg>
-      </div>
-
-      <!-- Abas de seleção rápida dos nós -->
-      <div class="node-tabs" role="tablist">
-        <button type="button" id="tab-node-1" class="node-tab selected" onclick="selectNode(1)">
-          <strong>Nó 1 — Sensor</strong>
-          <span>MEU_ID 1 • Pino A0</span>
-        </button>
-        <button type="button" id="tab-node-2" class="node-tab" onclick="selectNode(2)">
-          <strong>Nó 2 — Atuador</strong>
-          <span>MEU_ID 2 • Pino D4</span>
-        </button>
-        <button type="button" id="tab-node-0" class="node-tab" onclick="selectNode(0)">
-          <strong>Gateway (Nó 0)</strong>
-          <span>MEU_ID 0 • Antena PA+LNA</span>
-        </button>
-        <button type="button" id="tab-node-3" class="node-tab" onclick="selectNode(3)">
-          <strong>PC / Interface Web</strong>
-          <span>script.py • Multi-Porta</span>
-        </button>
-      </div>
-
-      <!-- Caixa dinâmica de detalhes do nó selecionado -->
-      <div id="nodeInspector" class="inspector-box" aria-live="polite"></div>
-    </section>
-
-    <!-- ======================================================================
-         SEÇÃO 2: PILHA DE CONFIABILIDADE SEM FIO + MINI-SIMULADOR
-         ====================================================================== -->
-    <section id="confiabilidade" class="section-card">
-      <div class="section-header">
-        <span class="section-kicker">02 • Camada MAC &amp; Controle de Erro</span>
-        <h2 class="section-title">Pilha de Confiabilidade: CSMA/CA, CRC-16 e ARQ Stop-and-Wait</h2>
-        <p class="section-desc">
-          Como o protocolo evita colisões antes de transmitir, descarta quadros corrompidos em hardware e recupera perdas causadas por ruído Wi-Fi.
-        </p>
-      </div>
-
-      <!-- 3 Etapas da Pilha -->
-      <div class="stages-grid">
-        <article class="stage-card">
-          <span class="stage-num cyan">ETAPA 1 • CSMA/CA</span>
-          <h3>Escuta Física de Portadora (<code style="font-family:var(--font-mono);color:var(--accent-cyan);">testRPD</code>)</h3>
-          <p>
-            Antes de transmitir, o nó verifica o buffer e executa <strong>6 amostragens consecutivas</strong> (espaçadas de 40 µs) no registrador <code>RPD</code> (limiar <strong>&gt; -64 dBm</strong>). Se detectar energia de Wi-Fi ou outra equipe, contabiliza <strong>RPD Hits</strong> e aguarda um atraso aleatório (<em>random backoff</em>).
-          </p>
-        </article>
-
-        <article class="stage-card">
-          <span class="stage-num emerald">ETAPA 2 • PHY &amp; CRC-16</span>
-          <h3>250 kbps, Filtro <code>"IOT26"</code> e CRC-16</h3>
-          <p>
-            A taxa de <strong>250 kbps</strong> eleva a sensibilidade do receptor para <strong>-94 dBm</strong>. O chip filtra no silício o endereço de 5 bytes <code>"IOT26"</code> (isolando outras equipes) e valida o checksum <strong>RF24_CRC_16</strong>, descartando quadros com qualquer bit invertido.
-          </p>
-        </article>
-
-        <article class="stage-card">
-          <span class="stage-num amber">ETAPA 3 • ARQ STOP-AND-WAIT</span>
-          <h3>Confirmação <code>MSG_ACK</code> &amp; Backoff Exponencial</h3>
-          <p>
-            Com <code>setAutoAck(false)</code> (evitando colisões simultâneas nos Beacons em broadcast), o protocolo exige um <strong>MSG_ACK</strong> explícito em até <strong>100 ms</strong>. Sem resposta, aplica até <strong>5 tentativas</strong> dobrando a janela (<code>20 → 40 → 80 → 160 → 250 ms</code>) e deduplica por <code>seq</code>.
-          </p>
-        </article>
-      </div>
-
-      <!-- Nota técnica sobre CSMA/CA vs MACA -->
-      <div class="callout-maca">
-        <strong>Por que CSMA/CA + ARQ em vez de MACA (RTS/CTS)?</strong> Como a estrutura <code>PacoteIoT</code> ocupa apenas <strong>15 bytes</strong> (quase o mesmo tamanho de um quadro de controle RTS/CTS) e cada comutação RX ↔ TX do oscilador PLL do nRF24L01+ exige <strong>130 µs</strong>, enviar RTS/CTS triplicaria a ocupação do meio. Além disso, roteadores Wi-Fi não interpretam quadros RTS/CTS do nRF24 — tornando a escuta física de energia via <code>testRPD()</code> muito mais rápida e eficaz.
-      </div>
-
-      <!-- Mini-Simulador Interativo -->
-      <div class="simulator-box">
-        <div class="sim-header">
-          <div>
-            <div class="sim-title">🔬 Mini-Simulador Didático: Envio de Quadro (CSMA/CA + ARQ)</div>
-            <div style="font-size:0.84rem;color:var(--text-muted);">Escolha o cenário espectral e observe o comportamento da pilha em tempo real.</div>
+      <div class="callgraph-grid">
+        <!-- Árvore de Chamadas Interativa -->
+        <div class="tree-panel" role="tree" aria-label="Árvore de chamadas do firmware">
+          <div class="tree-group-title">Fase 1 — Inicialização (Boot / Pulso DTR)</div>
+          <div class="call-node selected" data-fn="setup" data-roles="all gw n1 n2" onclick="selectFunction('setup')">
+            <span>setup()</span>
+            <span class="role-pill rp-all">TODOS OS NÓS</span>
+          </div>
+          <div class="call-node call-indent-1" data-fn="configurarRadio" data-roles="all gw n1 n2" onclick="selectFunction('configurarRadio')">
+            <span>└── configurarRadio()</span>
+            <span class="role-pill rp-all">SPI / PHY</span>
           </div>
 
-          <div class="btn-group" style="margin-bottom:0;">
-            <button type="button" id="simEnvClean" class="btn active-emerald" onclick="setSimEnv('clean')">
-              🟢 Ambiente Limpo (CH 100)
-            </button>
-            <button type="button" id="simEnvWifi" class="btn" onclick="setSimEnv('wifi')">
-              🔴 Interferência Wi-Fi (CH 62)
-            </button>
-            <button type="button" id="btnRunSim" class="btn btn-primary" onclick="runPacketSimulation()">
-              ▶ Simular Envio de Pacote
-            </button>
+          <div class="tree-group-title">Fase 2 — Ciclo Principal Contínuo (loop)</div>
+          <div class="call-node" data-fn="loop" data-roles="all gw n1 n2" onclick="selectFunction('loop')">
+            <span>loop()</span>
+            <span class="role-pill rp-all">MAIN LOOP</span>
+          </div>
+          <div class="call-node call-indent-1" data-fn="garantirRadioAtivo" data-roles="all gw n1 n2" onclick="selectFunction('garantirRadioAtivo')">
+            <span>├── garantirRadioAtivo()</span>
+            <span class="role-pill rp-all">WATCHDOG RF</span>
+          </div>
+          <div class="call-node call-indent-1" data-fn="pacoteNovo" data-roles="all gw n2" onclick="selectFunction('pacoteNovo')">
+            <span>├── pacoteNovo(pkt.seq)</span>
+            <span class="role-pill rp-n2">DEDUP RX</span>
+          </div>
+          <div class="call-node call-indent-1" data-fn="atualizarSaidaFisica" data-roles="all n2" onclick="selectFunction('atualizarSaidaFisica')">
+            <span>├── atualizarSaidaFisica()</span>
+            <span class="role-pill rp-n2">NÓ 2 (D4)</span>
+          </div>
+          <div class="call-node call-indent-1" data-fn="enviarTelemetriaParaGateway" data-roles="all n2" onclick="selectFunction('enviarTelemetriaParaGateway')">
+            <span>├── enviarTelemetriaParaGateway()</span>
+            <span class="role-pill rp-n2">SALTO 2</span>
+          </div>
+          <div class="call-node call-indent-1" data-fn="lerComandosSerialGateway" data-roles="all gw" onclick="selectFunction('lerComandosSerialGateway')">
+            <span>├── lerComandosSerialGateway()</span>
+            <span class="role-pill rp-gw">GATEWAY</span>
+          </div>
+          <div class="call-node call-indent-2" data-fn="dispararBeacon" data-roles="all gw" onclick="selectFunction('dispararBeacon')">
+            <span>│   └── dispararBeacon(ch, rep)</span>
+            <span class="role-pill rp-gw">BROADCAST</span>
+          </div>
+          <div class="call-node call-indent-1" data-fn="buscarCanalGateway" data-roles="all n1 n2" onclick="selectFunction('buscarCanalGateway')">
+            <span>├── buscarCanalGateway()</span>
+            <span class="role-pill rp-n1">AUTO-SCAN</span>
+          </div>
+          <div class="call-node call-indent-2" data-fn="aplicarCanal" data-roles="all gw n1 n2" onclick="selectFunction('aplicarCanal')">
+            <span>│   └── aplicarCanal(novoCanal)</span>
+            <span class="role-pill rp-all">SINTONIA</span>
+          </div>
+          <div class="call-node call-indent-1" data-fn="enviarConfiavel" data-roles="all n1 n2" onclick="selectFunction('enviarConfiavel')">
+            <span>└── enviarConfiavel(pkt)</span>
+            <span class="role-pill rp-n1">CSMA + ARQ</span>
+          </div>
+          <div class="call-node call-indent-2" data-fn="canalLivre" data-roles="all n1 n2" onclick="selectFunction('canalLivre')">
+            <span>    ├── canalLivre()</span>
+            <span class="role-pill rp-n1">testRPD()</span>
+          </div>
+          <div class="call-node call-indent-2" data-fn="enviarRaw" data-roles="all gw n1 n2" onclick="selectFunction('enviarRaw')">
+            <span>    ├── enviarRaw(pkt)</span>
+            <span class="role-pill rp-all">TX 130µs</span>
+          </div>
+          <div class="call-node call-indent-2" data-fn="aguardarAck" data-roles="all n1 n2" onclick="selectFunction('aguardarAck')">
+            <span>    └── aguardarAck(orig, seq, 100)</span>
+            <span class="role-pill rp-n1">RX ACK</span>
+          </div>
+
+          <div class="tree-group-title">Fase 3 — Supervisão Multi-Porta (PC / Python)</div>
+          <div class="call-node" data-fn="pythonSerial" data-roles="all py" onclick="selectFunction('pythonSerial')">
+            <span>monitorar_porta() + resetar_placas_dtr()</span>
+            <span class="role-pill rp-py">SCRIPT.PY</span>
           </div>
         </div>
 
-        <!-- 4 Passos Visuais -->
-        <div class="sim-track">
-          <div id="simStep1" class="sim-step">
-            <div class="step-label">1. CSMA/CA (6x RPD)</div>
-            <div id="simStep1Txt" class="step-status">Aguardando</div>
-          </div>
-          <div id="simStep2" class="sim-step">
-            <div class="step-label">2. TX Quadro (15B)</div>
-            <div id="simStep2Txt" class="step-status">Em repouso</div>
-          </div>
-          <div id="simStep3" class="sim-step">
-            <div class="step-label">3. Espera ACK (100ms)</div>
-            <div id="simStep3Txt" class="step-status">—</div>
-          </div>
-          <div id="simStep4" class="sim-step">
-            <div class="step-label">4. Resultado Enlace</div>
-            <div id="simStep4Txt" class="step-status">Pronto</div>
-          </div>
-        </div>
-
-        <!-- Métricas Simuladas -->
-        <div class="sim-metrics">
-          <div class="metric-pill">
-            <span>RPD Hits (Portadora)</span>
-            <strong id="metRpd">0</strong>
-          </div>
-          <div class="metric-pill">
-            <span>ARQ Retries</span>
-            <strong id="metRetries">0</strong>
-          </div>
-          <div class="metric-pill">
-            <span>Janela CW (Backoff)</span>
-            <strong id="metCw">20 ms</strong>
-          </div>
-          <div class="metric-pill">
-            <span>Tentativa / Latência</span>
-            <strong id="metLat">0 / 0 ms</strong>
-          </div>
-        </div>
-
-        <!-- Log Visual -->
-        <div id="simConsole" class="sim-console" aria-live="polite">
-          <div class="log-cyan">[SIM] Selecione "Ambiente Limpo (CH 100)" ou "Interferência Wi-Fi (CH 62)" e toque em "Simular Envio de Pacote".</div>
-        </div>
+        <!-- Painel de Detalhamento da Função Selecionada -->
+        <div id="fnDetailPanel" class="detail-panel" aria-live="polite"></div>
       </div>
     </section>
 
     <!-- ======================================================================
-         SEÇÃO 3: GESTÃO DE ESPECTRO DE 2,4 GHZ & COEXISTÊNCIA COM WI-FI
+         SEÇÃO 2: ANATOMIA DAS VARIÁVEIS CRÍTICAS
          ====================================================================== -->
-    <section id="espectro" class="section-card">
+    <section id="variaveis" class="section-card">
       <div class="section-header">
-        <span class="section-kicker">03 • Engenharia de Espectro (2400 – 2525 MHz)</span>
-        <h2 class="section-title">Gestão de Canais &amp; Coexistência com Redes Wi-Fi</h2>
+        <span class="section-kicker">02 • Estado Interno &amp; Controle Temporal</span>
+        <h2 class="section-title">Anatomia das Variáveis Críticas do Firmware</h2>
         <p class="section-desc">
-          A frequência de operação segue <strong>f(MHz) = 2400 + Canal</strong>. Selecione um canal abaixo para visualizar a sobreposição com os canais Wi-Fi (20 MHz de largura) e os mecanismos de sincronização.
+          Como variáveis globais e locais de largura fixa (<code>stdint.h</code>) coordenam deduplicação, janelas de contenção exponenciais, detecção de silêncio e proteção contra overflow de 32 bits.
         </p>
       </div>
 
-      <!-- Botões de Seleção de Canal -->
-      <div class="btn-group" role="group" aria-label="Selecionar canal RF">
-        <button type="button" id="chBtn12" class="btn" onclick="selectChannel(12)">Wi-Fi 1 (CH 12)</button>
-        <button type="button" id="chBtn37" class="btn" onclick="selectChannel(37)">Wi-Fi 6 (CH 37)</button>
-        <button type="button" id="chBtn62" class="btn" onclick="selectChannel(62)">Wi-Fi 11 (CH 62)</button>
-        <button type="button" id="chBtn100" class="btn active-emerald" onclick="selectChannel(100)">Limpo (CH 100)</button>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Variável</th>
+              <th>Tipo AVR</th>
+              <th>Escopo / Papel</th>
+              <th>Mecanismo Crítico no Código</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="var-name">seqAtual</td>
+              <td class="var-type">uint8_t (1B)</td>
+              <td>Contador de pacotes TX (<code>1..255</code>)</td>
+              <td>Incrementado em <code>enviarConfiavel()</code> e <code>dispararBeacon()</code>. Quando estoura de <code>255</code> para <code>0</code>, força <code>if (seqAtual == 0) seqAtual = 1;</code> para nunca colidir com o valor inicial <code>0</code> de nós recém-ligados.</td>
+            </tr>
+            <tr>
+              <td class="var-name">ultimoSeqRecebido</td>
+              <td class="var-type">uint8_t (1B)</td>
+              <td>Filtro de duplicidade RX</td>
+              <td>Armazena o <code>seq</code> do último quadro aceito. Se o <code>MSG_ACK</code> se perder por ruído e o remetente retransmitir, o destinatário devolve o <code>ACK</code> novamente mas ignora o processamento duplicado.</td>
+            </tr>
+            <tr>
+              <td class="var-name">ultimoRxDeduplicacao</td>
+              <td class="var-type">unsigned long (4B)</td>
+              <td>Expiração do filtro <code>seq</code></td>
+              <td>Permite aceitar novamente o mesmo <code>seq</code> após <strong>3000 ms</strong> (<code>millis() - ultimoRxDeduplicacao &gt; 3000</code>), evitando que uma placa reiniciada fique bloqueada caso envie o mesmo número de sequência inicial.</td>
+            </tr>
+            <tr>
+              <td class="var-name">cw</td>
+              <td class="var-type">uint16_t (2B)</td>
+              <td>Janela de Contenção (<em>Contention Window</em>)</td>
+              <td>Local em <code>enviarConfiavel()</code>. Inicia em <strong>20 ms</strong> e dobra a cada falha de ACK (<code>cw = min(cw * 2, 250)</code> → <code>20, 40, 80, 160, 250 ms</code>), sorteando atrasos com <code>random(15, cw)</code> para dispersar colisões.</td>
+            </tr>
+            <tr>
+              <td class="var-name">ultimoTrafegoRede</td>
+              <td class="var-type">unsigned long (4B)</td>
+              <td>Cronômetro de silêncio RF</td>
+              <td>Atualizado a cada <code>radio.read()</code> válido (inclusive dentro de <code>aguardarAck()</code>). Se ultrapassar <strong>5000 ms</strong> nos Nós 1 ou 2, aciona <code>buscarCanalGateway()</code> para varrer os 126 canais.</td>
+            </tr>
+            <tr>
+              <td class="var-name">janelaBeaconRapidoAte</td>
+              <td class="var-type">unsigned long (4B)</td>
+              <td>Aceleração pós-troca de canal</td>
+              <td>No Gateway, após um comando <code>CH:</code>, reduz o intervalo de <code>MSG_BEACON</code> de <strong>1500 ms</strong> para <strong>80 ms</strong> durante 5 segundos, acelerando a captura de nós que estavam ocupados transmitindo.</td>
+            </tr>
+            <tr>
+              <td class="var-name">totalRpdHits / totalRetries</td>
+              <td class="var-type">uint16_t (2B cada)</td>
+              <td>Telemetria de qualidade do enlace</td>
+              <td>Contadores cumulativos (<code>0..65535</code>) de detecções de portadora &gt; -64 dBm (CSMA/CA) e retransmissões (ARQ), transportados dentro de <code>PacoteIoT</code> até o painel JSON no PC.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ======================================================================
+         SEÇÃO 3: USO DA BIBLIOTECA RF24 & REGISTRADORES DO CHIP
+         ====================================================================== -->
+    <section id="biblioteca-rf24" class="section-card">
+      <div class="section-header">
+        <span class="section-kicker">03 • Driver TMRh20 RF24 &amp; Silício Nordic nRF24L01+</span>
+        <h2 class="section-title">Como o Código Controla o Transceptor via SPI</h2>
+        <p class="section-desc">
+          Mapeamento direto entre as chamadas da biblioteca <code>RF24</code> e os registradores internos do chip nRF24L01+ configurados em <code>configurarRadio()</code>, <code>canalLivre()</code> e <code>enviarRaw()</code>.
+        </p>
       </div>
 
-      <!-- Gráfico SVG de Espectro 2400 - 2525 MHz -->
-      <div class="diagram-frame">
-        <svg class="topology-svg" viewBox="0 0 920 275" role="img" aria-label="Gráfico de espectro de 2400 a 2525 MHz mostrando Wi-Fi canais 1, 6, 11 e o Canal Limpo 100">
-          <rect x="4" y="4" width="912" height="267" rx="12" fill="#0b1120" stroke="rgba(148,163,184,0.14)"/>
+      <div class="rf24-grid">
+        <article class="rf24-card">
+          <div class="rf24-card-head">
+            <span class="rf24-api">radio.setAutoAck(false)</span>
+            <span class="reg-badge">REG 0x01 • EN_AA = 0x00</span>
+          </div>
+          <p>
+            Desativa o <em>Enhanced ShockBurst Auto-ACK</em> em hardware. Como todos os nós compartilham o pipe de leitura <code>"IOT26"</code> para receber Beacons em broadcast, o Auto-ACK nativo faria os Nós 1 e 2 responderem ao mesmo tempo ao Gateway, causando colisão garantida.
+          </p>
+        </article>
 
-          <!-- Eixo base -->
-          <line x1="50" y1="220" x2="870" y2="220" stroke="#475569" stroke-width="2"/>
+        <article class="rf24-card">
+          <div class="rf24-card-head">
+            <span class="rf24-api">radio.setDataRate(RF24_250KBPS)</span>
+            <span class="reg-badge">REG 0x06 • RF_SETUP</span>
+          </div>
+          <p>
+            Configura o modulador GFSK para <strong>250 kbps</strong> (bit <code>RF_DR_LOW = 1</code>). Bits 8× mais longos que em 2 Mbps elevam a sensibilidade do receptor de <strong>-82 dBm</strong> para <strong>-94 dBm</strong> (ganho de link de +12 dB, quadruplicando o alcance em ambientes ruidosos).
+          </p>
+        </article>
 
-          <!-- Marcações de Frequência (escala: 2400 MHz = x:60, 2525 MHz = x:860 -> 6.4 px/MHz) -->
-          <g fill="#94a3b8" font-family="monospace" font-size="11" text-anchor="middle">
-            <line x1="60" y1="220" x2="60" y2="228" stroke="#64748b"/>
-            <text x="60" y="244">2400 MHz</text>
+        <article class="rf24-card">
+          <div class="rf24-card-head">
+            <span class="rf24-api">radio.setCRCLength(RF24_CRC_16)</span>
+            <span class="reg-badge">REG 0x00 • CONFIG (CRCO=1)</span>
+          </div>
+          <p>
+            Habilita o polinômio CRC de 16 bits (<code>x¹⁶ + x¹² + x⁵ + 1</code>) calculado no silício sobre endereço, controle e payload. Qualquer quadro corrompido por ruído Wi-Fi é descartado antes mesmo de gerar interrupção IRQ para o Arduino.
+          </p>
+        </article>
 
-            <line x1="137" y1="220" x2="137" y2="228" stroke="#ef4444"/>
-            <text x="137" y="244" fill="#fca5a5">2412 (CH 12)</text>
+        <article class="rf24-card">
+          <div class="rf24-card-head">
+            <span class="rf24-api">radio.testRPD()</span>
+            <span class="reg-badge">REG 0x09 • Bit 0 (RPD)</span>
+          </div>
+          <p>
+            Lê o detector físico de potência recebida do nRF24L01+. O bit vai para <code>1</code> sempre que a energia RF no canal sintonizado ultrapassa <strong>-64 dBm</strong> durante a escuta RX — permitindo detectar tráfego Wi-Fi antes de transmitir (CSMA/CA).
+          </p>
+        </article>
 
-            <line x1="297" y1="220" x2="297" y2="228" stroke="#f97316"/>
-            <text x="297" y="244" fill="#fdba74">2437 (CH 37)</text>
+        <article class="rf24-card">
+          <div class="rf24-card-head">
+            <span class="rf24-api">setPALevel(PA_MIN vs PA_LOW)</span>
+            <span class="reg-badge">REG 0x06 • RF_PWR[2:1]</span>
+          </div>
+          <p>
+            Calibra a potência de saída por papel: <strong>-18 dBm</strong> (<code>PA_MIN</code>) no Gateway com amplificador externo PA+LNA (evitando picos de corrente nos 3,3 V e saturação de perto) e <strong>-12 dBm</strong> (<code>PA_LOW</code>) nos nós remotos para atravessar ruído Wi-Fi.
+          </p>
+        </article>
 
-            <line x1="457" y1="220" x2="457" y2="228" stroke="#ef4444"/>
-            <text x="457" y="244" fill="#fca5a5">2462 (CH 62)</text>
+        <article class="rf24-card">
+          <div class="rf24-card-head">
+            <span class="rf24-api">isChipConnected() &amp; getChannel()</span>
+            <span class="reg-badge">REG 0x05 • RF_CH</span>
+          </div>
+          <p>
+            Usados em <code>garantirRadioAtivo()</code> para verificar se o registrador <code>RF_CH</code> ainda contém <code>canalAtual</code>. Se um brownout elétrico resetar o chip para o canal padrão de fábrica (CH 2), o driver reexecuta <code>radio.begin()</code> e reconfigura o SPI.
+          </p>
+        </article>
+      </div>
+    </section>
 
-            <line x1="598" y1="210" x2="598" y2="230" stroke="#64748b" stroke-dasharray="3 3"/>
-            <text x="598" y="244" fill="#64748b">~2484 Limite Wi-Fi</text>
-
-            <line x1="700" y1="220" x2="700" y2="228" stroke="#10b981"/>
-            <text x="700" y="244" fill="#6ee7b7" font-weight="700">2500 (CH 100)</text>
-
-            <line x1="860" y1="220" x2="860" y2="228" stroke="#64748b"/>
-            <text x="860" y="244">2525 MHz</text>
-          </g>
-
-          <!-- Domo Wi-Fi Canal 1 (2401-2423 MHz, centro x=137) -->
-          <g style="cursor:pointer" onclick="selectChannel(12)">
-            <path d="M 66 220 Q 137 46 208 220 Z" fill="rgba(239, 68, 68, 0.24)" stroke="#ef4444" stroke-width="2"/>
-            <text x="137" y="96" text-anchor="middle" fill="#fca5a5" font-family="sans-serif" font-size="12" font-weight="700">Wi-Fi Canal 1</text>
-            <text x="137" y="113" text-anchor="middle" fill="#fecaca" font-family="monospace" font-size="10.5">20 MHz (CH 12)</text>
-          </g>
-
-          <!-- Domo Wi-Fi Canal 6 (2426-2448 MHz, centro x=297) -->
-          <g style="cursor:pointer" onclick="selectChannel(37)">
-            <path d="M 226 220 Q 297 46 368 220 Z" fill="rgba(249, 115, 22, 0.24)" stroke="#f97316" stroke-width="2"/>
-            <text x="297" y="96" text-anchor="middle" fill="#fdba74" font-family="sans-serif" font-size="12" font-weight="700">Wi-Fi Canal 6</text>
-            <text x="297" y="113" text-anchor="middle" fill="#fed7aa" font-family="monospace" font-size="10.5">20 MHz (CH 37)</text>
-          </g>
-
-          <!-- Domo Wi-Fi Canal 11 (2451-2473 MHz, centro x=457) -->
-          <g style="cursor:pointer" onclick="selectChannel(62)">
-            <path d="M 386 220 Q 457 46 528 220 Z" fill="rgba(239, 68, 68, 0.24)" stroke="#ef4444" stroke-width="2"/>
-            <text x="457" y="96" text-anchor="middle" fill="#fca5a5" font-family="sans-serif" font-size="12" font-weight="700">Wi-Fi Canal 11</text>
-            <text x="457" y="113" text-anchor="middle" fill="#fecaca" font-family="monospace" font-size="10.5">20 MHz (CH 62)</text>
-          </g>
-
-          <!-- Pico Estreito Canal Limpo 100 (2500 MHz, centro x=700) -->
-          <g style="cursor:pointer" onclick="selectChannel(100)">
-            <path d="M 678 220 Q 700 42 722 220 Z" fill="rgba(16, 185, 129, 0.32)" stroke="#10b981" stroke-width="2.5"/>
-            <text x="700" y="68" text-anchor="middle" fill="#6ee7b7" font-family="sans-serif" font-size="12.5" font-weight="700">Canal Limpo</text>
-            <text x="700" y="85" text-anchor="middle" fill="#a7f3d0" font-family="monospace" font-size="11">CH 100 (2500 MHz)</text>
-          </g>
-
-          <!-- Marcador Dinâmico do Canal Sintonizado -->
-          <g id="tunedMarker" transform="translate(700, 0)">
-            <line x1="0" y1="24" x2="0" y2="220" stroke="#ffcc00" stroke-width="2.5" stroke-dasharray="5 4"/>
-            <rect x="-54" y="12" width="108" height="22" rx="11" fill="#ffcc00"/>
-            <text id="tunedMarkerText" x="0" y="27" text-anchor="middle" fill="#0f172a" font-family="monospace" font-size="11" font-weight="800">ATIVO: CH 100</text>
-          </g>
-        </svg>
+    <!-- ======================================================================
+         SEÇÃO 4: TIPOS DE DADOS, PACOTES & LAYOUT DE MEMÓRIA
+         ====================================================================== -->
+    <section id="tipos-pacotes" class="section-card">
+      <div class="section-header">
+        <span class="section-kicker">04 • Serialização Binária &amp; Arquitetura AVR 8-Bit</span>
+        <h2 class="section-title">Tipos de Dados, Estrutura <code>PacoteIoT</code> (15 Bytes) e Classes de Mensagem</h2>
+        <p class="section-desc">
+          Mapa byte a byte da <code>struct PacoteIoT</code> na SRAM do ATmega328P (Little-Endian, alinhamento natural de 1 byte). Clique em cada bloco para ver o offset e a codificação.
+        </p>
       </div>
 
-      <!-- Detalhes do canal selecionado + Mecanismos de Sincronismo -->
-      <div class="spectrum-info-grid">
-        <div id="channelDetailCard" class="channel-detail-card" aria-live="polite"></div>
+      <!-- Mapa Interativo dos 15 Bytes -->
+      <div id="memMapGrid" class="memory-map" role="group" aria-label="Mapa de bytes da struct PacoteIoT"></div>
 
-        <div class="sync-card">
-          <h3>🔄 Sincronização de Canal &amp; Auto-Scan</h3>
-          <ul class="inspector-list">
-            <li><strong>Migração Coordenada (<code>CH:</code>):</strong> Ao trocar de canal na interface, o Gateway dispara <strong>10 rajadas seguidas</strong> de <code>MSG_BEACON</code> (18 ms entre envios) na frequência antiga e mantém Beacons rápidos (80 ms) por 5 segundos.</li>
-            <li><strong>Recuperação Autônoma (<code>Auto-Scan</code>):</strong> Se um nó remoto ficar mais de <strong>5000 ms</strong> sem ouvir tráfego válido, ele varre sequencialmente os canais <code>0..125</code> (25 ms/canal) até relocalizar a rede sozinho.</li>
-          </ul>
+      <div id="memInspector" class="detail-panel" aria-live="polite"></div>
+
+      <!-- Os 4 Tipos de Mensagem (enum TipoMsg : uint8_t) -->
+      <div class="msg-types-grid">
+        <div class="msg-card">
+          <strong style="color:var(--accent-amber);">1 • MSG_BEACON (tipo = 1 | Destino: 255)</strong>
+          <p>
+            Emitido periodicamente pelo Gateway (a cada <strong>1500 ms</strong> em regime normal, <strong>80 ms</strong> após troca de canal, ou em rajadas de 4 a 10 pacotes após comandos seriais). Sincroniza <code>canal</code>, <code>modoAuto</code>, <code>estadoAtuador</code> e <code>limiar</code> em toda a rede.
+          </p>
+        </div>
+
+        <div class="msg-card">
+          <strong style="color:var(--accent-cyan);">2 • MSG_DADOS_M2M (tipo = 2 | Origem: 1 → Destino: 2)</strong>
+          <p>
+            Trafega exclusivamente no primeiro salto (Sensor → Atuador) a cada <strong>1200 ms</strong>. Transporta a conversão ADC de 10 bits (<code>valorSensor</code>) e aciona a malha de controle local no Nó 2 independentemente do computador.
+          </p>
+        </div>
+
+        <div class="msg-card">
+          <strong style="color:var(--accent-emerald);">3 • MSG_TELEMETRIA (tipo = 3 | Origem: 2 → Destino: 0)</strong>
+          <p>
+            Trafega no segundo salto (Atuador → Gateway) após a janela de guarda de <strong>15 ms</strong>. Consolida leitura do sensor, estado físico do pino <code>D4</code>, modo ativo, limiar e contadores <code>rpdHits</code> / <code>retries</code>.
+          </p>
+        </div>
+
+        <div class="msg-card">
+          <strong style="color:var(--accent-purple);">4 • MSG_ACK (tipo = 4 | Unicast de Confirmação)</strong>
+          <p>
+            Devolvido <strong>2 ms</strong> após a recepção válida de <code>MSG_DADOS_M2M</code> ou <code>MSG_TELEMETRIA</code>. Espelha o campo <code>seq</code> recebido e inverte <code>origem</code>/<code>destino</code> para validar a entrega no <code>aguardarAck()</code>.
+          </p>
         </div>
       </div>
     </section>
 
     <!-- ======================================================================
-         SEÇÃO 4: ANATOMIA DO QUADRO BINÁRIO (15 BYTES) & AUTO-RECUPERAÇÃO
+         SEÇÃO 5: IMPLEMENTAÇÃO REAL DOS PROTOCOLOS NO CÓDIGO
          ====================================================================== -->
-    <section id="quadro" class="section-card">
+    <section id="protocolos-codigo" class="section-card">
       <div class="section-header">
-        <span class="section-kicker">04 • Estrutura Binária &amp; Engenharia de Resiliência</span>
-        <h2 class="section-title">Anatomia do Quadro (<code>PacoteIoT</code> — 15 Bytes) &amp; Proteção de Hardware</h2>
+        <span class="section-kicker">05 • Engenharia de Protocolo Linha a Linha</span>
+        <h2 class="section-title">Como os Protocolos Foram Implementados no C++</h2>
         <p class="section-desc">
-          Toque em qualquer um dos 11 campos do payload abaixo para inspecionar seu tamanho em bytes, tipo de dado e função no protocolo.
+          Detalhes algorítmicos e temporizações exatas que garantem coexistência com Wi-Fi, prevenção de colisões entre saltos e recuperação automática.
         </p>
       </div>
 
-      <!-- Quadro Físico Completo no Ar -->
-      <div class="phy-frame" aria-label="Camada física do quadro nRF24L01+">
-        <div class="phy-block">
-          <strong>Preâmbulo</strong>
-          <span>1 Byte (PHY)</span>
-        </div>
-        <div class="phy-block">
-          <strong>Endereço "IOT26"</strong>
-          <span>5 Bytes (Filtro HW)</span>
-        </div>
-        <div class="phy-block">
-          <strong>Controle</strong>
-          <span>9 Bits (Packet Ctrl)</span>
-        </div>
-        <div class="phy-block highlight-payload">
-          <strong>Payload: struct PacoteIoT</strong>
-          <span>15 Bytes (Aplicação + MAC)</span>
-        </div>
-        <div class="phy-block">
-          <strong>CRC-16</strong>
-          <span>2 Bytes (Integridade)</span>
-        </div>
+      <div class="proto-blocks">
+        <article class="proto-item">
+          <h3>
+            <span>1. CSMA/CA Não-Persistente + ARQ Stop-and-Wait com Backoff Exponencial</span>
+            <span class="meta-tag">enviarConfiavel() • canalLivre()</span>
+          </h3>
+          <p>
+            Antes de cada envio, <code>canalLivre()</code> realiza 6 leituras seguidas de <code>testRPD()</code> espaçadas de <code>40 µs</code> (janela de <code>240 µs</code>). Se o meio estiver ocupado, sorteia um atraso aleatório entre <code>5 ms</code> e <code>cw</code> (até 6 esperas). Após transmitir, <code>aguardarAck()</code> escuta por <code>100 ms</code>; em caso de falha, dobra <code>cw</code> (<code>20 → 40 → 80 → 160 → 250 ms</code>) por até 5 tentativas.
+          </p>
+          <div class="code-snippet"><span class="kw">uint16_t</span> cw = <span class="num">20</span>;
+<span class="kw">for</span> (<span class="kw">uint8_t</span> tentativa = <span class="num">0</span>; tentativa &lt; <span class="num">5</span>; tentativa++) {
+  <span class="kw">uint8_t</span> esperasCsma = <span class="num">0</span>;
+  <span class="kw">while</span> (!<span class="fn">canalLivre</span>() &amp;&amp; esperasCsma &lt; <span class="num">6</span>) {
+    <span class="fn">delay</span>(<span class="fn">random</span>(<span class="num">5</span>, cw)); <span class="cmt">// Quebra simetria após rajada Wi-Fi</span>
+    esperasCsma++;
+  }
+  <span class="fn">enviarRaw</span>(pkt);
+  <span class="kw">if</span> (<span class="fn">aguardarAck</span>(pkt.destino, pkt.seq, <span class="num">100</span>)) <span class="kw">return true</span>;
+
+  totalRetries++;
+  <span class="fn">delay</span>(<span class="fn">random</span>(<span class="num">15</span>, cw));
+  cw = <span class="fn">min</span>((<span class="kw">uint16_t</span>)(cw * <span class="num">2</span>), (<span class="kw">uint16_t</span>)<span class="num">250</span>); <span class="cmt">// Backoff exponencial</span>
+}</div>
+        </article>
+
+        <article class="proto-item">
+          <h3>
+            <span>2. Interceptação de Beacons em Voo &amp; Janela de Guarda Entre Saltos</span>
+            <span class="meta-tag">aguardarAck() • loop()</span>
+          </h3>
+          <p>
+            Dois detalhes evitam bloqueios sutis: (a) enquanto um nó aguarda um <code>MSG_ACK</code>, <code>aguardarAck()</code> continua processando <code>MSG_BEACON</code> para que nenhuma troca de canal seja perdida em trânsito; (b) no Nó 2, após responder o <code>ACK</code> ao Nó 1, um <code>delay(15)</code> garante que o Nó 1 já voltou ao modo RX antes de iniciar o segundo salto rumo ao Gateway.
+          </p>
+          <div class="code-snippet"><span class="cmt">// No Nó 2: recebe leitura do Nó 1, confirma ACK e aguarda guarda de 15 ms</span>
+<span class="fn">delay</span>(<span class="num">2</span>);             <span class="cmt">// Tempo para o Nó 1 sair de TX (130µs) e entrar em RX</span>
+<span class="fn">enviarRaw</span>(ack);
+<span class="kw">if</span> (<span class="fn">pacoteNovo</span>(pkt.seq)) {
+  valorSensor = pkt.valorSensor;
+  <span class="kw">if</span> (modoAuto) { estadoAtuador = (valorSensor &lt; limiar) ? <span class="num">1</span> : <span class="num">0</span>; <span class="fn">atualizarSaidaFisica</span>(); }
+  <span class="fn">delay</span>(<span class="num">15</span>);          <span class="cmt">// Janela de guarda: evita colisão entre Salto 1 e Salto 2</span>
+  <span class="fn">enviarTelemetriaParaGateway</span>();
+}</div>
+        </article>
+
+        <article class="proto-item">
+          <h3>
+            <span>3. Migração Coordenada de Espectro &amp; Varredura Autônoma (Auto-Scan)</span>
+            <span class="meta-tag">dispararBeacon() • buscarCanalGateway()</span>
+          </h3>
+          <p>
+            Quando o usuário seleciona um novo canal na web (ex.: <code>CH:62</code>), o Gateway dispara 10 Beacons na frequência antiga (espaçados de <code>18 ms</code>) anunciando o destino e ativa Beacons rápidos (<code>80 ms</code>) por 5 segundos. Se algum nó ainda perder a troca, após <code>5000 ms</code> de silêncio ele varre os 126 canais (<code>0..125</code>) escutando <code>25 ms</code> por frequência.
+          </p>
+          <div class="code-snippet"><span class="kw">for</span> (<span class="kw">uint8_t</span> ch = <span class="num">0</span>; ch &lt;= <span class="num">125</span>; ch++) {
+  <span class="fn">aplicarCanal</span>(ch);
+  <span class="kw">unsigned long</span> inicio = <span class="fn">millis</span>();
+  <span class="kw">while</span> (<span class="fn">millis</span>() - inicio &lt; <span class="num">25</span>) { <span class="cmt">// 126 * 25 ms = 3,15 s varredura total</span>
+    <span class="kw">if</span> (radio.<span class="fn">available</span>()) { <span class="cmt">/* valida PacoteIoT e trava no canal ativo */</span> }
+  }
+}</div>
+        </article>
+      </div>
+    </section>
+
+    <!-- ======================================================================
+         SEÇÃO 6: DADOS PROFUNDOS & CURIOSIDADES DE ENGENHARIA
+         ====================================================================== -->
+    <section id="curiosidades" class="section-card">
+      <div class="section-header">
+        <span class="section-kicker">06 • Bastidores Físicos &amp; Curiosidades de Baixo Nível</span>
+        <h2 class="section-title">6 Detalhes Profundos da Arquitetura AVR &amp; RF 2,4 GHz</h2>
+        <p class="section-desc">
+          Fatos reais de hardware, eletrônica e compilação que explicam decisões aparentemente simples no código-fonte.
+        </p>
       </div>
 
-      <!-- Grade Interativa dos 15 Bytes -->
-      <div id="payloadGrid" class="payload-grid" role="group" aria-label="Campos da estrutura PacoteIoT"></div>
-
-      <!-- Inspetor do Campo Selecionado -->
-      <div id="fieldInspector" class="inspector-box" aria-live="polite"></div>
-
-      <!-- Cards de Resiliência Física e Backend Multi-Porta -->
-      <div class="resilience-grid">
-        <article class="res-card">
-          <h3>🛡️ Auto-Recuperação SPI (<code>garantirRadioAtivo</code>)</h3>
+      <div class="curiosity-grid">
+        <article class="curiosity-card amber">
+          <div class="curiosity-num">Curiosidade 01 • Eletrônica de Bancada</div>
+          <h3>O calcanhar de Aquiles dos 3,3 V no Arduino Nano (CH340)</h3>
           <p>
-            Oscilações na linha de <strong>3,3 V</strong> (como picos de transmissão da antena PA+LNA ou acionamento de carga no atuador) podem resetar os registradores internos do chip nRF24L01+ para o canal padrão de fábrica (CH 2). A cada ciclo do loop, o firmware verifica a conexão SPI e o canal configurado, reinicializando o rádio automaticamente em <strong>menos de 1 ms</strong>.
+            Diferente do Arduino Uno (que possui um regulador dedicado LP2985 de 150 mA para 3,3 V), o Arduino Nano deriva seus 3,3 V diretamente do regulador interno do chip USB-Serial <strong>CH340G</strong>, limitado a ~30–50 mA. Como um módulo <code>nRF24L01+ PA+LNA</code> em <code>PA_MAX</code> consome picos de até <strong>115 mA</strong>, usar potência máxima derruba a tensão do chip e reseta o rádio — por isso o Gateway usa <code>RF24_PA_MIN</code>.
           </p>
         </article>
 
-        <article class="res-card">
-          <h3>🖥️ Supervisão Multi-Porta &amp; Reset DTR (<code>script.py</code>)</h3>
+        <article class="curiosity-card">
+          <div class="curiosity-num">Curiosidade 02 • Layout de Memória (ABI)</div>
+          <h3>Por que <code>sizeof(PacoteIoT)</code> é 15 bytes no Nano, mas seria 16 no ESP32?</h3>
           <p>
-            O servidor Python lê em paralelo todas as portas seriais <code>/dev/ttyUSB*</code> a <strong>115200 bps</strong>, identificando automaticamente o Gateway via JSON enquanto exibe logs de diagnóstico dos nós remotos. O comando <strong>Reset DTR</strong> alterna o pino <em>Data Terminal Ready</em> nas portas USB, reiniciando os três Arduinos Nano em sincronia.
+            A arquitetura <strong>ATmega328P (AVR de 8 bits)</strong> possui alinhamento natural de 1 byte (<code>alignof == 1</code>), empacotando os 7 campos <code>uint8_t</code> e 4 campos <code>uint16_t</code> em exatos <strong>15 bytes</strong> sem lacunas. Em arquiteturas de 32 bits (ARM / ESP32), o compilador inseriria 1 byte de <em>padding</em> oculto antes de <code>valorSensor</code> (offset 7 → 8), exigindo <code>__attribute__((packed))</code> para interoperar.
+          </p>
+        </article>
+
+        <article class="curiosity-card emerald">
+          <div class="curiosity-num">Curiosidade 03 • Tempo no Ar (Time-on-Air)</div>
+          <h3>Cada transmissão ocupa o ar por apenas 772 microssegundos</h3>
+          <p>
+            Somando Preâmbulo (8 bits) + Endereço <code>"IOT26"</code> (40 bits) + Controle de Pacote (9 bits) + Payload <code>PacoteIoT</code> (120 bits) + CRC-16 (16 bits), cada quadro tem exatos <strong>193 bits</strong>. A 250 kbps (4 µs por bit), a transmissão física dura apenas <strong>0,772 ms</strong> — menos de 0,1% do ciclo de 1200 ms do sensor.
+          </p>
+        </article>
+
+        <article class="curiosity-card purple">
+          <div class="curiosity-num">Curiosidade 04 • Matemática de 32 Bits</div>
+          <h3>Imunidade ao bug dos 49,7 dias do <code>millis()</code></h3>
+          <p>
+            O contador <code>millis()</code> do Arduino é um <code>unsigned long</code> de 32 bits que estoura de <code>4.294.967.295</code> para <code>0</code> após <strong>49 dias e 17 horas</strong>. Todas as comparações do firmware usam subtração modular sem sinal (<code>millis() - inicio &lt; timeoutMs</code>): mesmo durante o rollover, a aritmética em complemento de dois preserva o intervalo exato sem travar.
+          </p>
+        </article>
+
+        <article class="curiosity-card rose">
+          <div class="curiosity-num">Curiosidade 05 • Sintetizador PLL 2,4 GHz</div>
+          <h3>Os 130 µs obrigatórios e o terreno livre do Canal 100</h3>
+          <p>
+            O <code>delayMicroseconds(130)</code> dentro de <code>enviarRaw()</code> respeita o tempo máximo de assentamento (<em>settling time</em>) do oscilador controlado por tensão (VCO/PLL) do nRF24L01+ ao sair de RX para TX. Já o <strong>Canal 100 (2500 MHz)</strong> aproveita o sintetizador fracionário de 126 canais do chip para operar 16 MHz acima do limite superior do Wi-Fi (2484 MHz).
+          </p>
+        </article>
+
+        <article class="curiosity-card">
+          <div class="curiosity-num">Curiosidade 06 • Descorrelação Estocástica</div>
+          <h3>Ruído térmico em <code>A1</code> + número primo <code>97</code></h3>
+          <p>
+            Se os três Arduinos ligarem juntos após um pulso DTR e executarem <code>randomSeed()</code> com a mesma semente, sorteariam exatamente os mesmos tempos de backoff CSMA/CA e colidiriam em sincronia. Somar a leitura flutuante do pino analógico desconectado <code>A1</code> (ruído eletromagnético) com <code>MEU_ID * 97</code> garante sequências pseudoaleatórias distintas em cada nó.
           </p>
         </article>
       </div>
@@ -1418,351 +1279,291 @@
        ======================================================================== -->
   <footer>
     <div class="container footer-inner">
-      <div class="footer-inst">
-        <span>UTFPR</span> — Universidade Tecnológica Federal do Paraná
+      <div style="color:var(--text-secondary);font-weight:600;">
+        <span style="color:var(--utfpr-yellow);">UTFPR</span> — Universidade Tecnológica Federal do Paraná
       </div>
-      <div>
-        Disciplina: <strong>OPT101 — Tópicos Especiais Em Interfaces Computacionais</strong>
-      </div>
+      <div>Disciplina: <strong>OPT101 — Tópicos Especiais Em Interfaces Computacionais</strong></div>
       <div style="font-size:0.78rem;">
-        Arquitetura IoT Híbrida (M2M + Estrela) • Arduino Nano (ATmega328P) • Transceptor nRF24L01+ (2,4 GHz)
+        Documentação Técnica Avançada • Firmware C++ (ATmega328P) • Transceptor nRF24L01+ • Supervisão Python
       </div>
       <a class="back-top" href="#topo">↑ Voltar ao topo</a>
     </div>
   </footer>
 
   <!-- ========================================================================
-       LÓGICA INTERATIVA (100% VANILLA JS AUTOCONTIDO)
+       SCRIPT INTERATIVO (CALL GRAPH + INSPETOR DE MEMÓRIA)
        ======================================================================== -->
   <script>
     /* ------------------------------------------------------------------------
-       1. DADOS DOS NÓS DA TOPOLOGIA (SEÇÃO 1)
+       1. DADOS DO MAPA DE CHAMADAS (SEÇÃO 01)
        ------------------------------------------------------------------------ */
-    const NODES_DATA = {
-      1: {
-        title: "Nó 1 — Sensor Analógico Remoto",
-        tag: "MEU_ID = 1 • RF24_PA_LOW (-12 dBm)",
-        items: [
-          "Realiza leitura analógico-digital (ADC 10 bits, escala 0 a 1023) no pino A0 a cada 1200 ms.",
-          "Transmite quadros '1. MSG_DADOS_M2M' diretamente ao Nó 2 (destino = 2) sem depender do computador.",
-          "Opera com potência RF24_PA_LOW (-12 dBm), oferecendo margem de sinal 4x superior para atravessar interferências Wi-Fi.",
-          "Aguarda confirmação explícita '2. MSG_ACK' em até 100 ms e escuta Broadcasts ('MSG_BEACON') do Gateway."
-        ]
+    const FUNCTIONS_DATA = {
+      setup: {
+        sig: "void setup()",
+        tags: ["Executada 1x no Boot/DTR", "Todos os Nós (ID 0, 1, 2)"],
+        desc: "Configura a UART em 115200 bps, inicializa o pino D4 como saída digital exclusiva no Nó 2, gera semente estocástica para o CSMA/CA via pino flutuante A1 e valida a resposta inicial do chip nRF24L01+ no barramento SPI.",
+        code: `<span class="kw">if</span> (MEU_ID == <span class="num">2</span>) {
+  <span class="fn">pinMode</span>(PINO_ATUADOR, OUTPUT);
+  <span class="fn">digitalWrite</span>(PINO_ATUADOR, LOW);
+}
+<span class="fn">randomSeed</span>(<span class="fn">analogRead</span>(A1) + (MEU_ID * <span class="num">97</span>));
+<span class="kw">if</span> (!radio.<span class="fn">begin</span>()) { <span class="kw">while</span> (<span class="num">1</span>) {} }
+<span class="fn">configurarRadio</span>();`
       },
-      2: {
-        title: "Nó 2 — Atuador Local & Concentrador",
-        tag: "MEU_ID = 2 • Pino D4 • Janela 15 ms",
-        items: [
-          "Controla a saída digital pino D4 (evitando o pino D13, reservado ao clock SCK do barramento SPI).",
-          "Executa decisão autônoma M2M no modo AUTO: aciona D4 = HIGH sempre que Sensor < Limiar (padrão 500).",
-          "Após responder '2. MSG_ACK' ao Nó 1, aguarda uma janela de guarda de 15 ms para evitar colisões entre os dois saltos.",
-          "Consolida leitura do sensor, estado do atuador e contadores RPD/Retries em '3. MSG_TELEMETRIA' rumo ao Gateway."
-        ]
+      configurarRadio: {
+        sig: "void configurarRadio()",
+        tags: ["Camada Física (PHY)", "Registradores SPI"],
+        desc: "Desativa o Auto-ACK nativo do Enhanced ShockBurst, fixa a taxa em 250 kbps (-94 dBm de sensibilidade), ativa CRC-16, ajusta a potência conforme o papel (PA_MIN no Gateway vs PA_LOW nos nós) e abre os pipes com o endereço de 5 bytes 'IOT26'.",
+        code: `radio.<span class="fn">setAutoAck</span>(<span class="kw">false</span>);
+radio.<span class="fn">setRetries</span>(<span class="num">0</span>, <span class="num">0</span>);
+radio.<span class="fn">setDataRate</span>(RF24_250KBPS);
+radio.<span class="fn">setCRCLength</span>(RF24_CRC_16);
+radio.<span class="fn">setPALevel</span>(MEU_ID == <span class="num">0</span> ? RF24_PA_MIN : RF24_PA_LOW);
+radio.<span class="fn">openWritingPipe</span>(enderecoRede);
+radio.<span class="fn">openReadingPipe</span>(<span class="num">1</span>, enderecoRede);`
       },
-      0: {
-        title: "Gateway — Coordenador da Rede (Nó 0)",
-        tag: "MEU_ID = 0 • Antena PA+LNA • RF24_PA_MIN (-18 dBm)",
-        items: [
-          "Placa equipada com antena externa PA+LNA calibrada em RF24_PA_MIN (-18 dBm) para evitar queda nos 3,3 V e saturação na bancada.",
-          "Recebe '3. MSG_TELEMETRIA' do Nó 2, valida deduplicação por 'seq' e responde com '4. MSG_ACK'.",
-          "Serializa os dados consolidados em formato JSON pela porta USB (115200 bps) para o painel web em Python.",
-          "Difunde comandos de controle em Broadcast ('MSG_BEACON', destino = 255) sincronizando Canal, Modo e Limiar."
-        ]
+      loop: {
+        sig: "void loop()",
+        tags: ["Ciclo Contínuo", "Máquina de Estados por MEU_ID"],
+        desc: "Executa continuamente em três etapas: (1) verifica saúde do rádio SPI; (2) despacha quadros recebidos (MSG_BEACON, MSG_DADOS_M2M ou MSG_TELEMETRIA); e (3) executa tarefas periódicas específicas de cada nó (Beacons no ID 0, Auto-Scan nos IDs 1/2 e leitura A0 a cada 1200 ms no ID 1).",
+        code: `<span class="fn">garantirRadioAtivo</span>();
+<span class="kw">if</span> (radio.<span class="fn">available</span>()) {
+  PacoteIoT pkt;
+  radio.<span class="fn">read</span>(&amp;pkt, <span class="kw">sizeof</span>(pkt));
+  ultimoTrafegoRede = <span class="fn">millis</span>();
+  <span class="cmt">// Roteamento por pkt.tipo e MEU_ID...</span>
+}`
       },
-      3: {
-        title: "PC / Interface Web Multi-Porta (script.py)",
-        tag: "Backend Python • UART 115200 bps • Pulse DTR",
-        items: [
-          "Abre em paralelo todas as portas /dev/ttyUSB* conectadas, detectando automaticamente qual placa é o Gateway pelo fluxo JSON.",
-          "Exibe telemetria em tempo real, contadores de ruído CSMA/CA (RPD Hits), retransmissões ARQ e diagnósticos de enlace.",
-          "Permite alternar entre modo AUTO (M2M) e MANUAL (LED:1 / LED:0), ajustar limiares (LIM:) e migrar canais (CH:).",
-          "Envia pulso sincronizado via pino DTR nas portas USB para reiniciar as três placas simultaneamente e capturar o boot limpo."
-        ]
+      garantirRadioAtivo: {
+        sig: "void garantirRadioAtivo()",
+        tags: ["Self-Healing Hardware", "Tempo < 1 ms"],
+        desc: "Atua como watchdog da camada física: consulta se o chip responde no barramento SPI e se o registrador RF_CH corresponde a canalAtual. Se uma queda nos 3,3 V resetar o transceptor para o canal padrão (CH 2), reinicializa e restaura toda a configuração instantaneamente.",
+        code: `<span class="kw">void</span> <span class="fn">garantirRadioAtivo</span>() {
+  <span class="kw">if</span> (!radio.<span class="fn">isChipConnected</span>() || radio.<span class="fn">getChannel</span>() != canalAtual) {
+    radio.<span class="fn">begin</span>();
+    <span class="fn">configurarRadio</span>();
+  }
+}`
+      },
+      pacoteNovo: {
+        sig: "bool pacoteNovo(uint8_t seq)",
+        tags: ["Deduplicação ARQ", "Janela 3000 ms"],
+        desc: "Impede que retransmissões provocadas pela perda de um MSG_ACK no retorno sejam contabilizadas duas vezes no Gateway ou disparem ações repetidas. Expira automaticamente após 3000 ms para não bloquear placas reiniciadas.",
+        code: `<span class="kw">bool</span> <span class="fn">pacoteNovo</span>(<span class="kw">uint8_t</span> seq) {
+  <span class="kw">if</span> (seq != ultimoSeqRecebido || (<span class="fn">millis</span>() - ultimoRxDeduplicacao &gt; <span class="num">3000</span>)) {
+    ultimoSeqRecebido = seq;
+    ultimoRxDeduplicacao = <span class="fn">millis</span>();
+    <span class="kw">return true</span>;
+  }
+  <span class="kw">return false</span>;
+}`
+      },
+      atualizarSaidaFisica: {
+        sig: "void atualizarSaidaFisica()",
+        tags: ["Atuação Física", "Exclusiva Nó 2 (Pino D4)"],
+        desc: "Reflete o estado lógico de estadoAtuador no pino digital D4 apenas quando compilado como MEU_ID == 2, preservando o pino D13 (SCK do SPI) livre de interferências.",
+        code: `<span class="kw">void</span> <span class="fn">atualizarSaidaFisica</span>() {
+  <span class="kw">if</span> (MEU_ID == <span class="num">2</span>) {
+    <span class="fn">digitalWrite</span>(PINO_ATUADOR, estadoAtuador ? HIGH : LOW);
+  }
+}`
+      },
+      enviarTelemetriaParaGateway: {
+        sig: "void enviarTelemetriaParaGateway()",
+        tags: ["Salto 2 (Nó 2 → Gateway)", "Usa enviarConfiavel()"],
+        desc: "Empacota valorSensor, estadoAtuador, modoAuto e limiar em um quadro MSG_TELEMETRIA (destino = 0) e o submete ao pipeline CSMA/CA + ARQ Stop-and-Wait, imprimindo o status do enlace na serial para diagnóstico.",
+        code: `PacoteIoT tel;
+tel.tipo = MSG_TELEMETRIA;
+tel.destino = <span class="num">0</span>;
+tel.valorSensor = valorSensor;
+tel.estadoAtuador = estadoAtuador;
+<span class="kw">bool</span> ok = <span class="fn">enviarConfiavel</span>(tel);`
+      },
+      lerComandosSerialGateway: {
+        sig: "void lerComandosSerialGateway()",
+        tags: ["Interface USB ↔ RF", "Exclusiva Gateway (ID 0)"],
+        desc: "Interpreta comandos ASCII enviados pelo script.py (CH:, LED:, AUTO:, LIM:), atualiza o estado global do Gateway, dispara rajadas imediatas de Beacons (10x para troca de canal, 4x para comandos de estado) e devolve o novo JSON à USB.",
+        code: `<span class="kw">if</span> (cmd.<span class="fn">startsWith</span>(<span class="str">"CH:"</span>)) {
+  <span class="kw">uint8_t</span> novoCh = cmd.<span class="fn">substring</span>(<span class="num">3</span>).<span class="fn">toInt</span>();
+  <span class="fn">dispararBeacon</span>(novoCh, <span class="num">10</span>);
+  <span class="fn">aplicarCanal</span>(novoCh);
+  janelaBeaconRapidoAte = <span class="fn">millis</span>() + <span class="num">5000</span>;
+}`
+      },
+      dispararBeacon: {
+        sig: "void dispararBeacon(uint8_t canalAlvo, uint8_t repeticoes)",
+        tags: ["Difusão Broadcast (255)", "Sem ACK"],
+        desc: "Monta um quadro MSG_BEACON com destino = 255 e o transmite via enviarRaw() sem aguardar ACK (evitando colisão simultânea dos nós remotos). Quando repeticoes > 1, insere 18 ms entre rajadas para vencer ruído Wi-Fi.",
+        code: `<span class="kw">for</span> (<span class="kw">uint8_t</span> i = <span class="num">0</span>; i &lt; repeticoes; i++) {
+  <span class="fn">enviarRaw</span>(b);
+  <span class="kw">if</span> (repeticoes &gt; <span class="num">1</span>) <span class="fn">delay</span>(<span class="num">18</span>);
+}`
+      },
+      buscarCanalGateway: {
+        sig: "void buscarCanalGateway()",
+        tags: ["Auto-Scan Espectral", "Canais 0..125 (3,15 s)"],
+        desc: "Acionada nos Nós 1 e 2 após 5000 ms sem recepção válida. Varre sequencialmente os 126 canais (25 ms de escuta por canal) até detectar qualquer quadro da rede 'IOT26' e travar novamente na frequência do Gateway.",
+        code: `<span class="kw">for</span> (<span class="kw">uint8_t</span> ch = <span class="num">0</span>; ch &lt;= <span class="num">125</span>; ch++) {
+  <span class="fn">aplicarCanal</span>(ch);
+  <span class="kw">unsigned long</span> inicio = <span class="fn">millis</span>();
+  <span class="kw">while</span> (<span class="fn">millis</span>() - inicio &lt; <span class="num">25</span>) { <span class="cmt">/* escuta tráfego */</span> }
+}`
+      },
+      aplicarCanal: {
+        sig: "void aplicarCanal(uint8_t novoCanal)",
+        tags: ["Sintonia PLL", "Faixa 0..125"],
+        desc: "Valida o limite superior de 125 (2525 MHz), pausa a escuta RX, escreve o novo canal no registrador RF_CH e reativa o receptor.",
+        code: `<span class="kw">void</span> <span class="fn">aplicarCanal</span>(<span class="kw">uint8_t</span> novoCanal) {
+  <span class="kw">if</span> (novoCanal &gt; <span class="num">125</span>) <span class="kw">return</span>;
+  canalAtual = novoCanal;
+  radio.<span class="fn">stopListening</span>();
+  radio.<span class="fn">setChannel</span>(canalAtual);
+  radio.<span class="fn">startListening</span>();
+}`
+      },
+      enviarConfiavel: {
+        sig: "bool enviarConfiavel(PacoteIoT &pkt)",
+        tags: ["CSMA/CA + ARQ Stop-and-Wait", "Até 5 Tentativas"],
+        desc: "Preenche origem, incrementa seqAtual (pulando 0), anexa métricas rpdHits/retries e executa até 5 ciclos de escuta CSMA/CA (canalLivre), transmissão (enviarRaw) e espera de confirmação (aguardarAck) com backoff exponencial de 20 ms a 250 ms.",
+        code: `pkt.origem = MEU_ID;
+seqAtual++;
+<span class="kw">if</span> (seqAtual == <span class="num">0</span>) seqAtual = <span class="num">1</span>;
+pkt.seq = seqAtual;
+<span class="cmt">// Loop de 5 tentativas com canalLivre() + aguardarAck(100ms)</span>`
+      },
+      canalLivre: {
+        sig: "bool canalLivre()",
+        tags: ["CSMA/CA Físico", "6x testRPD() @ 40 µs"],
+        desc: "Verifica se há quadros pendentes no FIFO RX e realiza 6 leituras seguidas do detector RPD (> -64 dBm) espaçadas por 40 µs. Se detectar portadora ativa, incrementa totalRpdHits e retorna false.",
+        code: `<span class="kw">bool</span> <span class="fn">canalLivre</span>() {
+  <span class="kw">if</span> (radio.<span class="fn">available</span>()) <span class="kw">return false</span>;
+  <span class="kw">for</span> (<span class="kw">uint8_t</span> i = <span class="num">0</span>; i &lt; <span class="num">6</span>; i++) {
+    <span class="kw">if</span> (radio.<span class="fn">testRPD</span>()) { totalRpdHits++; <span class="kw">return false</span>; }
+    <span class="fn">delayMicroseconds</span>(<span class="num">40</span>);
+  }
+  <span class="kw">return true</span>;
+}`
+      },
+      enviarRaw: {
+        sig: "void enviarRaw(PacoteIoT &pkt)",
+        tags: ["Camada Física TX", "130 µs PLL Settling"],
+        desc: "Garante que o chip está ativo, tira o transceptor de RX (stopListening), aguarda os 130 µs exigidos pelo datasheet do nRF24L01+ para estabilização do PLL, envia os 15 bytes via SPI e retorna imediatamente ao modo RX.",
+        code: `<span class="kw">void</span> <span class="fn">enviarRaw</span>(PacoteIoT &amp;pkt) {
+  <span class="fn">garantirRadioAtivo</span>();
+  radio.<span class="fn">stopListening</span>();
+  <span class="fn">delayMicroseconds</span>(<span class="num">130</span>);
+  radio.<span class="fn">write</span>(&amp;pkt, <span class="kw">sizeof</span>(pkt));
+  radio.<span class="fn">startListening</span>();
+}`
+      },
+      aguardarAck: {
+        sig: "bool aguardarAck(uint8_t origemEsperada, uint8_t seqEsperada, uint16_t timeoutMs)",
+        tags: ["ARQ Timeout 100 ms", "Intercepta Beacons"],
+        desc: "Escuta o rádio por até 100 ms aguardando um MSG_ACK cujo remetente e número de sequência coincidam com o quadro enviado. Se um MSG_BEACON do Gateway chegar nesse intervalo, atualiza canal e modo imediatamente sem perder sincronia.",
+        code: `<span class="kw">while</span> (<span class="fn">millis</span>() - inicio &lt; timeoutMs) {
+  <span class="kw">if</span> (radio.<span class="fn">available</span>()) {
+    radio.<span class="fn">read</span>(&amp;resp, <span class="kw">sizeof</span>(resp));
+    <span class="kw">if</span> (resp.tipo == MSG_ACK &amp;&amp; resp.seq == seqEsperada) <span class="kw">return true</span>;
+    <span class="cmt">// Também processa MSG_BEACON em voo!</span>
+  }
+}`
+      },
+      pythonSerial: {
+        sig: "monitorar_porta(porta) & resetar_placas_dtr()",
+        tags: ["Backend Python", "Multi-Thread + DTR Hardware"],
+        desc: "Abre todas as portas /dev/ttyUSB* em paralelo a 115200 bps. Classifica automaticamente o Gateway ao detectar JSON válido ({...}) e captura logs textuais dos Nós 1 e 2. O reset DTR pulsa a linha Data Terminal Ready para descarregar o capacitor de RESET dos 3 Arduinos simultaneamente.",
+        code: `<span class="cmt"># Pulso capacitivo via linha DTR da interface serial USB:</span>
+ser.dtr = <span class="kw">False</span>
+time.<span class="fn">sleep</span>(<span class="num">0.12</span>)
+ser.dtr = <span class="kw">True</span>  <span class="cmt"># Reinicia ATmega328P em sincronia</span>`
       }
     };
 
-    function setTopologyMode(mode) {
-      const btnM2M = document.getElementById("btnFlowM2M");
-      const btnBeacon = document.getElementById("btnFlowBeacon");
-      const layerM2M = document.getElementById("svgLayerM2M");
-      const layerBeacon = document.getElementById("svgLayerBeacon");
-      const pcCmdArrow = document.getElementById("pcCmdArrow");
-
-      if (mode === "m2m") {
-        btnM2M.className = "btn active-cyan";
-        btnBeacon.className = "btn";
-        layerM2M.style.opacity = "1";
-        layerBeacon.style.opacity = "0.35";
-        pcCmdArrow.style.opacity = "0.25";
-      } else {
-        btnM2M.className = "btn";
-        btnBeacon.className = "btn active-amber";
-        layerM2M.style.opacity = "0.32";
-        layerBeacon.style.opacity = "1";
-        pcCmdArrow.style.opacity = "1";
-      }
-    }
-
-    function selectNode(id) {
-      [0, 1, 2, 3].forEach((nid) => {
-        const tab = document.getElementById(`tab-node-${nid}`);
-        const box = document.getElementById(`box-node-${nid}`);
-        if (nid === id) {
-          tab.classList.add("selected");
-          box.setAttribute("stroke", "#38bdf8");
-          box.setAttribute("stroke-width", "2.8");
-        } else {
-          tab.classList.remove("selected");
-          box.setAttribute("stroke", "rgba(148,163,184,0.3)");
-          box.setAttribute("stroke-width", "1.5");
-        }
+    function selectFunction(fnKey) {
+      document.querySelectorAll(".call-node").forEach((el) => {
+        el.classList.toggle("selected", el.dataset.fn === fnKey);
       });
 
-      const info = NODES_DATA[id];
-      const inspector = document.getElementById("nodeInspector");
-      inspector.innerHTML = `
-        <div class="inspector-header">
-          <div class="inspector-title">${info.title}</div>
-          <span class="inspector-tag">${info.tag}</span>
+      const info = FUNCTIONS_DATA[fnKey];
+      const panel = document.getElementById("fnDetailPanel");
+      panel.innerHTML = `
+        <div class="detail-header">
+          <div class="detail-sig">${info.sig}</div>
+          <div class="detail-meta">
+            ${info.tags.map((t) => `<span class="meta-tag">${t}</span>`).join("")}
+          </div>
         </div>
-        <ul class="inspector-list">
-          ${info.items.map((item) => `<li>${item}</li>`).join("")}
-        </ul>
+        <p style="font-size:0.9rem;color:var(--text-secondary);">${info.desc}</p>
+        <div class="code-snippet">${info.code}</div>
       `;
     }
 
-    /* ------------------------------------------------------------------------
-       2. MINI-SIMULADOR INTERATIVO CSMA/CA + ARQ (SEÇÃO 2)
-       ------------------------------------------------------------------------ */
-    let simEnv = "clean";
-    let simRunning = false;
-    let totalSimRpd = 0;
-    let totalSimRetries = 0;
-
-    function setSimEnv(env) {
-      if (simRunning) return;
-      simEnv = env;
-      const btnClean = document.getElementById("simEnvClean");
-      const btnWifi = document.getElementById("simEnvWifi");
-
-      if (env === "clean") {
-        btnClean.className = "btn active-emerald";
-        btnWifi.className = "btn";
-        appendSimLog("Canal alterado para CH 100 (2500 MHz — fora da banda Wi-Fi).", "log-emerald");
-      } else {
-        btnClean.className = "btn";
-        btnWifi.className = "btn active-danger";
-        appendSimLog("Canal alterado para CH 62 (2462 MHz — centro do Wi-Fi Canal 11).", "log-amber");
-      }
-    }
-
-    function appendSimLog(text, cssClass) {
-      const consoleEl = document.getElementById("simConsole");
-      const line = document.createElement("div");
-      line.className = cssClass || "";
-      const now = new Date();
-      const ts = now.toTimeString().slice(0, 8);
-      line.textContent = `[${ts}] ${text}`;
-      consoleEl.appendChild(line);
-      consoleEl.scrollTop = consoleEl.scrollHeight;
-    }
-
-    function setSimStepState(stepNum, stateClass, text) {
-      const el = document.getElementById(`simStep${stepNum}`);
-      const txt = document.getElementById(`simStep${stepNum}Txt`);
-      el.className = `sim-step ${stateClass}`.trim();
-      txt.textContent = text;
-    }
-
-    function sleep(ms) {
-      return new Promise((resolve) => setTimeout(resolve, ms));
-    }
-
-    async function runPacketSimulation() {
-      if (simRunning) return;
-      simRunning = true;
-      const btnRun = document.getElementById("btnRunSim");
-      btnRun.disabled = true;
-
-      let cw = 20;
-      let latency = 0;
-      const maxAttempts = simEnv === "clean" ? 1 : 3;
-
-      for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-        // Etapa 1: CSMA/CA
-        setSimStepState(1, "step-active", "Escutando RPD...");
-        setSimStepState(2, "", "Aguardando meio");
-        setSimStepState(3, "", "—");
-        setSimStepState(4, "", `Tentativa ${attempt}/5`);
-        document.getElementById("metLat").textContent = `${attempt} / ${latency} ms`;
-
-        await sleep(360);
-
-        if (simEnv === "wifi" && attempt < maxAttempts) {
-          const rpdBurst = attempt === 1 ? 2 : 1;
-          totalSimRpd += rpdBurst;
-          const backoffDelay = Math.floor(5 + Math.random() * (cw - 5));
-          latency += backoffDelay;
-          document.getElementById("metRpd").textContent = totalSimRpd;
-          setSimStepState(1, "step-warn", `RPD > -64 dBm (+${rpdBurst})`);
-          appendSimLog(`[CSMA/CA] Portadora Wi-Fi detectada! RPD Hits=${totalSimRpd}. Backoff aleatório de ${backoffDelay} ms...`, "log-amber");
-          await sleep(420);
-        } else {
-          setSimStepState(1, "step-ok", "Canal Livre (6x OK)");
-          appendSimLog("[CSMA/CA] 6 leituras testRPD() livres. Meio físico liberado.", "log-cyan");
-          await sleep(260);
-        }
-
-        // Etapa 2: Envio TX + CRC-16
-        setSimStepState(2, "step-active", "TX 15B + CRC-16");
-        appendSimLog(`[PHY/TX] Enviando quadro PacoteIoT (15B + CRC-16) • Tentativa ${attempt}/5...`, "log-cyan");
-        latency += 4;
-        await sleep(340);
-
-        // Etapa 3: Espera ACK
-        setSimStepState(2, "step-ok", "Quadro no ar");
-        setSimStepState(3, "step-active", "Aguardando ACK...");
-        await sleep(380);
-
-        if (simEnv === "wifi" && attempt < maxAttempts) {
-          totalSimRetries += 1;
-          latency += 100;
-          document.getElementById("metRetries").textContent = totalSimRetries;
-          setSimStepState(3, "step-warn", "Timeout 100 ms!");
-          setSimStepState(4, "step-warn", `Dobrando CW → ${cw * 2} ms`);
-          appendSimLog(`[ARQ] Colisão com rajada Wi-Fi! Sem MSG_ACK em 100 ms. Retries=${totalSimRetries}. Backoff exponencial CW=${cw}→${cw * 2} ms.`, "log-red");
-          cw = Math.min(cw * 2, 250);
-          document.getElementById("metCw").textContent = `${cw} ms`;
-          document.getElementById("metLat").textContent = `${attempt} / ${latency} ms`;
-          await sleep(520);
-        } else {
-          latency += 6;
-          setSimStepState(3, "step-ok", "MSG_ACK Recebido!");
-          setSimStepState(4, "step-ok", "Entrega Confirmada");
-          document.getElementById("metLat").textContent = `${attempt} / ${latency} ms`;
-          appendSimLog(`[ARQ/OK] MSG_ACK válido recebido em ${latency} ms (Tentativa ${attempt}/5). Entrega concluída!`, "log-emerald");
-          break;
-        }
-      }
-
-      simRunning = false;
-      btnRun.disabled = false;
-    }
-
-    /* ------------------------------------------------------------------------
-       3. ESPECTRO 2,4 GHZ INTERATIVO (SEÇÃO 3)
-       ------------------------------------------------------------------------ */
-    const CHANNELS_DATA = {
-      12: {
-        x: 137,
-        freq: "2412 MHz",
-        title: "Canal 12 — Sobreposição com Wi-Fi Canal 1",
-        color: "#fca5a5",
-        badge: "Interferência Wi-Fi Real (2401–2423 MHz)",
-        desc: "Coincide com a frequência central do Canal 1 do Wi-Fi (20 MHz de largura). Ideal em laboratório para demonstrar o detector RPD (> -64 dBm) e as retransmissões ARQ atuando sob downloads Wi-Fi."
-      },
-      37: {
-        x: 297,
-        freq: "2437 MHz",
-        title: "Canal 37 — Sobreposição com Wi-Fi Canal 6",
-        color: "#fdba74",
-        badge: "Interferência Wi-Fi Real (2426–2448 MHz)",
-        desc: "Coincide com o Canal 6 do Wi-Fi, amplamente utilizado por roteadores domésticos e pontos de acesso móveis. Aciona o backoff exponencial sempre que há rajadas de tráfego próximas às placas."
-      },
-      62: {
-        x: 457,
-        freq: "2462 MHz",
-        title: "Canal 62 — Sobreposição com Wi-Fi Canal 11",
-        color: "#fca5a5",
-        badge: "Interferência Wi-Fi Real (2451–2473 MHz)",
-        desc: "Centro do Canal 11 do Wi-Fi. Embora os quadros Wi-Fi (OFDM) não se misturem aos dados nRF24 (GFSK + endereço 'IOT26'), a energia ocupada eleva os contadores RPD Hits e Retries."
-      },
-      100: {
-        x: 700,
-        freq: "2500 MHz",
-        title: "Canal 100 — Faixa Limpa (Fora da Banda Wi-Fi)",
-        color: "#10b981",
-        badge: "Operação Nominal Livre de Interferência",
-        desc: "Opera em 2500 MHz, acima do limite superior (~2484 MHz) dos canais Wi-Fi tradicionais de 2,4 GHz. Garante latência mínima, RPD próximo de zero e máxima estabilidade na bancada."
-      }
-    };
-
-    function selectChannel(ch) {
-      [12, 37, 62, 100].forEach((c) => {
-        const btn = document.getElementById(`chBtn${c}`);
-        if (c === ch) {
-          btn.className = c === 100 ? "btn active-emerald" : "btn active-danger";
-        } else {
-          btn.className = "btn";
-        }
+    function filterCallRole(role) {
+      ["all", "gw", "n1", "n2", "py"].forEach((r) => {
+        const btn = document.getElementById(`flt-${r}`);
+        btn.className = r === role ? "btn active-cyan" : "btn";
       });
 
-      const data = CHANNELS_DATA[ch];
-      const marker = document.getElementById("tunedMarker");
-      const markerTxt = document.getElementById("tunedMarkerText");
-      marker.setAttribute("transform", `translate(${data.x}, 0)`);
-      markerTxt.textContent = `ATIVO: CH ${ch}`;
-
-      const card = document.getElementById("channelDetailCard");
-      card.innerHTML = `
-        <div class="freq-readout" style="color:${data.color};">${data.freq} <span style="font-size:0.85rem;font-weight:600;color:var(--text-muted);">(2400 + ${ch})</span></div>
-        <h3>${data.title}</h3>
-        <div style="display:inline-block;font-family:var(--font-mono);font-size:0.74rem;padding:3px 9px;border-radius:6px;background:rgba(148,163,184,0.12);color:${data.color};margin-bottom:8px;">${data.badge}</div>
-        <p style="font-size:0.89rem;color:var(--text-secondary);">${data.desc}</p>
-      `;
+      document.querySelectorAll(".call-node").forEach((el) => {
+        const roles = el.dataset.roles.split(" ");
+        if (role === "all" || roles.includes(role)) {
+          el.classList.remove("hidden-role");
+        } else {
+          el.classList.add("hidden-role");
+        }
+      });
     }
 
     /* ------------------------------------------------------------------------
-       4. ANATOMIA DO QUADRO BINÁRIO (15 BYTES) (SEÇÃO 4)
+       2. MAPA DE BYTES DA STRUCT PACOTEIOT (SEÇÃO 04)
        ------------------------------------------------------------------------ */
-    const PAYLOAD_FIELDS = [
-      { name: "tipo", size: "1 Byte", type: "uint8_t (Offset 0)", desc: "Identifica a classe da mensagem: 1 = MSG_BEACON (controle), 2 = MSG_DADOS_M2M (sensor → atuador), 3 = MSG_TELEMETRIA (atuador → gateway) ou 4 = MSG_ACK (confirmação)." },
-      { name: "origem", size: "1 Byte", type: "uint8_t (Offset 1)", desc: "Identificador (MEU_ID) do nó que transmitiu o quadro: 0 (Gateway), 1 (Nó Sensor) ou 2 (Nó Atuador)." },
-      { name: "destino", size: "1 Byte", type: "uint8_t (Offset 2)", desc: "Endereço lógico do destinatário: 0 (Gateway), 2 (Nó Atuador) ou 255 (Broadcast global para todos os nós escutarem Beacons)." },
-      { name: "seq", size: "1 Byte", type: "uint8_t (Offset 3)", desc: "Número de sequência incremental (1..255). Permite associar cada MSG_ACK ao pacote exato e descartar duplicatas em até 3000 ms." },
-      { name: "canal", size: "1 Byte", type: "uint8_t (Offset 4)", desc: "Canal de radiofrequência ativo (0..125). Nos Beacons do Gateway, comanda a migração coordenada de frequência de toda a rede." },
-      { name: "estadoAtuador", size: "1 Byte", type: "uint8_t (Offset 5)", desc: "Estado lógico da saída digital D4 no Nó 2: 0 (DESLIGADO / LOW) ou 1 (LIGADO / HIGH)." },
-      { name: "modoAuto", size: "1 Byte", type: "uint8_t (Offset 6)", desc: "Define o regime de controle do atuador: 1 = AUTO (decisão local M2M pelo limiar) ou 0 = MANUAL (comando direto via web)." },
-      { name: "valorSensor", size: "2 Bytes", type: "uint16_t (Offsets 7–8)", desc: "Valor digitalizado de 10 bits (0 a 1023) lido pelo conversor analógico-digital (pino A0) do Nó 1." },
-      { name: "limiar", size: "2 Bytes", type: "uint16_t (Offsets 9–10)", desc: "Ponto de corte (padrão 500) usado pelo Nó 2 no modo AUTO: se valorSensor < limiar, aciona D4 automaticamente." },
-      { name: "rpdHits", size: "2 Bytes", type: "uint16_t (Offsets 11–12)", desc: "Contador acumulado de detecções de portadora (> -64 dBm) pelo algoritmo CSMA/CA antes das transmissões." },
-      { name: "retries", size: "2 Bytes", type: "uint16_t (Offsets 13–14)", desc: "Contador acumulado de retransmissões executadas pelo protocolo ARQ Stop-and-Wait após timeout de ACK." }
+    const STRUCT_FIELDS = [
+      { offset: "Byte 0", name: "tipo", dtype: "uint8_t (1B)", title: "tipo — Enumeração TipoMsg (1 Byte, Offset 0)", desc: "Define a semântica do quadro: 1 = MSG_BEACON, 2 = MSG_DADOS_M2M, 3 = MSG_TELEMETRIA ou 4 = MSG_ACK. Tipado explicitamente como 'enum TipoMsg : uint8_t' para ocupar 1 byte em vez dos 2 bytes padrão de um enum em C++ AVR." },
+      { offset: "Byte 1", name: "origem", dtype: "uint8_t (1B)", title: "origem — Identificador do Remetente (1 Byte, Offset 1)", desc: "Armazena o MEU_ID da placa transmissora (0 = Gateway, 1 = Sensor, 2 = Atuador). Usado pelo receptor para validar autenticidade do ACK e direcionar a resposta." },
+      { offset: "Byte 2", name: "destino", dtype: "uint8_t (1B)", title: "destino — Endereçamento Lógico (1 Byte, Offset 2)", desc: "Define o alvo do quadro: 0 (Gateway), 1 (Nó 1), 2 (Nó 2) ou 255 (Broadcast global). Como todas as placas compartilham o pipe físico 'IOT26', este byte realiza a multiplexação lógica por software." },
+      { offset: "Byte 3", name: "seq", dtype: "uint8_t (1B)", title: "seq — Número de Sequência ARQ (1 Byte, Offset 3)", desc: "Contador cíclico de 1 a 255. Permite parear cada MSG_ACK ao pacote exato que o originou e descartar retransmissões duplicadas na função pacoteNovo()." },
+      { offset: "Byte 4", name: "canal", dtype: "uint8_t (1B)", title: "canal — Canal RF Sintonizado (1 Byte, Offset 4)", desc: "Valor de 0 a 125 correspondente à frequência (2400 + canal) MHz. Nos Beacons do Gateway, comanda a migração coordenada de frequência; no Auto-Scan, confirma que o quadro pertence à portadora ativa." },
+      { offset: "Byte 5", name: "estadoAtuador", dtype: "uint8_t (1B)", title: "estadoAtuador — Estado Lógico Pino D4 (1 Byte, Offset 5)", desc: "Representa o nível lógico da saída digital D4 no Nó 2 (0 = LOW / Desligado, 1 = HIGH / Ligado). Em modo MANUAL, carrega o comando enviado pelo Gateway; em modo AUTO, reporta a decisão local M2M." },
+      { offset: "Byte 6", name: "modoAuto", dtype: "uint8_t (1B)", title: "modoAuto — Regime de Operação (1 Byte, Offset 6)", desc: "Flag booleana compactada em 1 byte: 1 = AUTO (Nó 2 decide D4 autonomamente pela regra valorSensor < limiar) ou 0 = MANUAL (Gateway impõe estadoAtuador)." },
+      { offset: "Bytes 7–8", name: "valorSensor", dtype: "uint16_t (2B)", title: "valorSensor — Leitura ADC 10 Bits (2 Bytes Little-Endian, Offsets 7–8)", desc: "Armazena o resultado de analogRead(A0) (0 a 1023, ocupando 10 dos 16 bits). Na arquitetura AVR Little-Endian, o byte menos significativo (LSB) fica no offset 7 e o mais significativo (MSB) no offset 8." },
+      { offset: "Bytes 9–10", name: "limiar", dtype: "uint16_t (2B)", title: "limiar — Ponto de Corte M2M (2 Bytes Little-Endian, Offsets 9–10)", desc: "Valor de referência (padrão 500, faixa 0..1023) comparado pelo Nó 2 contra valorSensor no modo AUTO. Pode ser alterado dinamicamente via comando serial LIM:<valor>." },
+      { offset: "Bytes 11–12", name: "rpdHits", dtype: "uint16_t (2B)", title: "rpdHits — Contador CSMA/CA (2 Bytes Little-Endian, Offsets 11–12)", desc: "Total acumulado (0..65535) de vezes em que radio.testRPD() detectou energia RF acima de -64 dBm antes de transmitir, servindo como termômetro de congestionamento Wi-Fi." },
+      { offset: "Bytes 13–14", name: "retries", dtype: "uint16_t (2B)", title: "retries — Contador de Retransmissões ARQ (2 Bytes Little-Endian, Offsets 13–14)", desc: "Total acumulado (0..65535) de reenvios executados por timeout de MSG_ACK (100 ms) dentro de enviarConfiavel()." }
     ];
 
-    function renderPayloadGrid() {
-      const grid = document.getElementById("payloadGrid");
-      grid.innerHTML = PAYLOAD_FIELDS.map((f, idx) => `
-        <button type="button" id="byte-cell-${idx}" class="byte-cell ${idx === 0 ? "selected" : ""}" onclick="selectPayloadField(${idx})">
-          <span class="b-name">${f.name}</span>
-          <span class="b-size">${f.size}</span>
+    function renderMemMap() {
+      const grid = document.getElementById("memMapGrid");
+      grid.innerHTML = STRUCT_FIELDS.map((f, i) => `
+        <button type="button" id="mem-btn-${i}" class="mem-byte ${i === 0 ? "active" : ""}" onclick="selectMemField(${i})">
+          <span class="mem-offset">${f.offset}</span>
+          <span class="mem-field">${f.name}</span>
+          <span class="mem-dtype">${f.dtype}</span>
         </button>
       `).join("");
-      selectPayloadField(0);
+      selectMemField(0);
     }
 
-    function selectPayloadField(index) {
-      PAYLOAD_FIELDS.forEach((_, idx) => {
-        const cell = document.getElementById(`byte-cell-${idx}`);
-        if (idx === index) cell.classList.add("selected");
-        else cell.classList.remove("selected");
+    function selectMemField(idx) {
+      STRUCT_FIELDS.forEach((_, i) => {
+        document.getElementById(`mem-btn-${i}`).classList.toggle("active", i === idx);
       });
-
-      const field = PAYLOAD_FIELDS[index];
-      const box = document.getElementById("fieldInspector");
-      box.innerHTML = `
-        <div class="inspector-header">
-          <div class="inspector-title">Campo: <code style="font-family:var(--font-mono);color:var(--accent-emerald);">${field.name}</code></div>
-          <span class="inspector-tag">${field.size} • ${field.type}</span>
+      const f = STRUCT_FIELDS[idx];
+      document.getElementById("memInspector").innerHTML = `
+        <div class="detail-header">
+          <div class="detail-sig">${f.title}</div>
+          <div class="detail-meta">
+            <span class="meta-tag">${f.offset}</span>
+            <span class="meta-tag">${f.dtype}</span>
+            <span class="meta-tag">Little-Endian (ATmega328P)</span>
+          </div>
         </div>
-        <p style="font-size:0.92rem;color:var(--text-secondary);">${field.desc}</p>
+        <p style="font-size:0.9rem;color:var(--text-secondary);">${f.desc}</p>
       `;
     }
 
-    // Inicialização ao carregar o DOM
     document.addEventListener("DOMContentLoaded", () => {
-      selectNode(1);
-      selectChannel(100);
-      renderPayloadGrid();
+      selectFunction("setup");
+      renderMemMap();
     });
   </script>
 </body>
